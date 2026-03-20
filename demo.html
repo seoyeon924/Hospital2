@@ -13,7 +13,6 @@
       --primary: #0F1117;
       --accent: #2563EB;
       --accent-light: #EFF6FF;
-      --sidebar-bg: #FAFAFA;
       --sidebar-border: #F0F0F0;
       --neutral-50: #F8F9FC;
       --neutral-100: #EDF1F7;
@@ -28,21 +27,25 @@
     html, body { height: 100%; margin: 0; background: var(--neutral-50); }
     .num { font-variant-numeric: tabular-nums; }
     .card { background: white; border: 1px solid var(--neutral-100); border-radius: 14px; padding: 20px; }
+    .view-section { display: none; }
+    .view-section.active { display: block; }
 
     /* Sidebar */
     .sidebar { width: 240px; min-width: 240px; background: white; border-right: 1px solid var(--sidebar-border); height: 100vh; position: fixed; left: 0; top: 0; overflow-y: auto; z-index: 10; }
     .main { margin-left: 240px; min-height: 100vh; padding: 32px; }
 
-    /* Nav item */
-    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--neutral-600); cursor: pointer; transition: all 150ms; text-decoration: none; min-height: 44px; }
+    /* Nav */
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--neutral-600); cursor: pointer; transition: background 150ms, color 150ms; text-decoration: none; min-height: 44px; }
     .nav-item:hover { background: var(--neutral-50); color: var(--primary); }
     .nav-item.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
 
-    /* KPI card */
+    /* KPI */
     .kpi-card { background: white; border: 1px solid var(--neutral-100); border-radius: 14px; padding: 20px 24px; }
-    .kpi-badge-up { background: #F0FDF4; color: var(--success); font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
-    .kpi-badge-down { background: #FEF2F2; color: var(--error); font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
-    .kpi-badge-neutral { background: var(--neutral-100); color: var(--neutral-600); font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+    .kpi-val { font-size: 26px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--primary); margin: 6px 0; }
+    .badge-up   { background: #F0FDF4; color: var(--success); font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+    .badge-down { background: #FEF2F2; color: var(--error);   font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+    .badge-n    { background: var(--neutral-100); color: var(--neutral-600); font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+    .badge-info { background: var(--accent-light); color: var(--accent); font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
 
     /* Table */
     table { width: 100%; border-collapse: collapse; }
@@ -51,23 +54,29 @@
     td { padding: 12px 14px; font-size: 14px; border-top: 1px solid var(--neutral-100); }
     tr:hover td { background: var(--neutral-50); }
 
-    /* Period toggle */
-    .period-btn { padding: 6px 14px; border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: none; color: var(--neutral-600); min-height: 36px; transition: all 150ms; }
-    .period-btn.active { background: var(--accent); color: white; }
-    .period-btn:hover:not(.active) { background: var(--neutral-100); }
+    /* Toggles */
+    .seg-btn { padding: 6px 14px; border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: none; color: var(--neutral-600); min-height: 36px; transition: background 150ms, color 150ms; }
+    .seg-btn.active { background: var(--accent); color: white; }
+    .seg-btn:hover:not(.active) { background: var(--neutral-100); }
 
-    /* Retention toggle */
-    .retention-toggle { padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; border: none; background: transparent; cursor: pointer; color: var(--neutral-400); min-height: 36px; transition: all 150ms; white-space: nowrap; }
-    .retention-toggle.active { background: white; color: var(--primary); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-    .retention-toggle:hover:not(.active) { color: var(--neutral-600); }
+    /* Form */
+    .form-label { font-size: 13px; font-weight: 600; color: var(--neutral-700); margin-bottom: 6px; display: block; }
+    .form-input { width: 100%; padding: 11px 14px; border: 1px solid var(--neutral-200); border-radius: 10px; font-size: 14px; color: var(--primary); background: white; outline: none; transition: border-color 150ms; box-sizing: border-box; min-height: 44px; }
+    .form-input:focus { border-color: var(--accent); }
+    .form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238B95A1' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
 
-    /* Cohort table */
-    .cohort-th { padding: 10px 8px; text-align: center; font-size: 11px; font-weight: 600; color: var(--neutral-400); background: white; white-space: nowrap; border-bottom: 2px solid var(--neutral-100); position: sticky; top: 0; }
+    /* Retention cohort */
+    .cohort-th  { padding: 10px 8px; text-align: center; font-size: 11px; font-weight: 600; color: var(--neutral-400); background: white; white-space: nowrap; border-bottom: 2px solid var(--neutral-100); }
     .cohort-th.left { text-align: left; }
     .cohort-td-label { padding: 10px 12px; font-size: 13px; color: var(--neutral-700); white-space: nowrap; border-bottom: 1px solid var(--neutral-100); }
-    .cohort-td-count { padding: 10px 12px; font-size: 13px; color: var(--neutral-500, #6B7280); text-align: right; border-bottom: 1px solid var(--neutral-100); font-variant-numeric: tabular-nums; }
-    .cohort-td { padding: 0; text-align: center; border-bottom: 1px solid var(--neutral-100); }
-    .cohort-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 8px 6px; min-width: 52px; height: 48px; }
+    .cohort-td-count { padding: 10px 12px; font-size: 13px; color: var(--neutral-600); text-align: right; border-bottom: 1px solid var(--neutral-100); font-variant-numeric: tabular-nums; }
+    .cohort-td  { padding: 0; text-align: center; border-bottom: 1px solid var(--neutral-100); }
+    .cohort-cell{ display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 8px 6px; min-width: 52px; height: 48px; }
+
+    /* Retention toggle */
+    .rt-btn { padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; border: none; background: transparent; cursor: pointer; color: var(--neutral-400); min-height: 36px; transition: all 150ms; white-space: nowrap; }
+    .rt-btn.active { background: white; color: var(--primary); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .rt-btn:hover:not(.active) { color: var(--neutral-600); }
 
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
@@ -88,33 +97,33 @@
 
   <nav class="flex-1 p-3 space-y-0.5">
     <p class="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--neutral-400);">메인</p>
-    <a href="#" class="nav-item active">
+    <a href="#" class="nav-item active" data-view="dashboard" onclick="showView('dashboard',this);return false;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
       대시보드
     </a>
-    <a href="#" class="nav-item">
+    <a href="#" class="nav-item" data-view="input" onclick="showView('input',this);return false;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
       시술 입력
     </a>
     <p class="px-3 py-2 mt-3 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--neutral-400);">분석</p>
-    <a href="#" class="nav-item">
+    <a href="#" class="nav-item" data-view="revenue" onclick="showView('revenue',this);return false;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       매출 분석
     </a>
-    <a href="#" class="nav-item">
+    <a href="#" class="nav-item" data-view="patients" onclick="showView('patients',this);return false;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
       환자 분석
     </a>
-    <a href="#" class="nav-item">
+    <a href="#" class="nav-item" data-view="competitors" onclick="showView('competitors',this);return false;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       경쟁사 모니터링
     </a>
-    <a href="#" class="nav-item">
+    <a href="#" class="nav-item" data-view="marketing" onclick="showView('marketing',this);return false;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
       마케팅 채널
     </a>
     <p class="px-3 py-2 mt-3 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--neutral-400);">기타</p>
-    <a href="#" class="nav-item">
+    <a href="#" class="nav-item" data-view="settings" onclick="showView('settings',this);return false;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
       설정
     </a>
@@ -122,7 +131,7 @@
 
   <div class="p-4 border-t" style="border-color: var(--sidebar-border);">
     <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-[14px] text-white" style="background: var(--accent);">김</div>
+      <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-[14px] text-white flex-shrink-0" style="background: var(--accent);">김</div>
       <div class="flex-1 min-w-0">
         <p class="text-[13px] font-semibold truncate">김○○ 원장님</p>
         <p class="text-[11px] truncate" style="color: var(--neutral-400);">강남 피부과</p>
@@ -134,46 +143,44 @@
 <!-- ── Main ── -->
 <main class="main">
 
-  <!-- Header -->
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ VIEW: DASHBOARD ━━ -->
+<section class="view-section active" id="view-dashboard">
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
     <div>
-      <p class="text-[13px] mb-1" style="color: var(--neutral-400);">2026년 3월 20일 목요일</p>
-      <h1 class="font-black" style="font-size: 26px;">안녕하세요, 원장님 👋</h1>
+      <p class="text-[13px] mb-1" style="color: var(--neutral-400);">2026년 3월 20일 금요일</p>
+      <h1 class="font-black" style="font-size: 26px;">안녕하세요, 원장님</h1>
     </div>
     <div class="flex items-center gap-2 p-1 rounded-xl" style="background: var(--neutral-100);">
-      <button class="period-btn active" onclick="setPeriod(this,'week')">주간</button>
-      <button class="period-btn" onclick="setPeriod(this,'month')">월간</button>
-      <button class="period-btn" onclick="setPeriod(this,'year')">연간</button>
+      <button class="seg-btn active" onclick="setPeriod(this,'week')">주간</button>
+      <button class="seg-btn" onclick="setPeriod(this,'month')">월간</button>
+      <button class="seg-btn" onclick="setPeriod(this,'year')">연간</button>
     </div>
   </div>
 
-  <!-- KPI Cards -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
     <div class="kpi-card">
-      <p class="text-[12px] font-medium mb-2" style="color: var(--neutral-400);">이번 주 매출</p>
-      <p class="num font-black mb-2" style="font-size: 26px;" id="kpi-revenue">20.6M</p>
-      <span class="kpi-badge-up">↑ 12.4%</span>
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">이번 주 매출</p>
+      <p class="kpi-val" id="kpi-revenue">20.6M</p>
+      <span class="badge-up">↑ 12.4%</span>
     </div>
     <div class="kpi-card">
-      <p class="text-[12px] font-medium mb-2" style="color: var(--neutral-400);">시술 건수</p>
-      <p class="num font-black mb-2" style="font-size: 26px;" id="kpi-count">47건</p>
-      <span class="kpi-badge-up">↑ 8.2%</span>
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">시술 건수</p>
+      <p class="kpi-val" id="kpi-count">47건</p>
+      <span class="badge-up">↑ 8.2%</span>
     </div>
     <div class="kpi-card">
-      <p class="text-[12px] font-medium mb-2" style="color: var(--neutral-400);">재방문율</p>
-      <p class="num font-black mb-2" style="font-size: 26px;" id="kpi-revisit">68%</p>
-      <span class="kpi-badge-up">↑ 3%p</span>
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">재방문율</p>
+      <p class="kpi-val" id="kpi-revisit">68%</p>
+      <span class="badge-up">↑ 3%p</span>
     </div>
     <div class="kpi-card">
-      <p class="text-[12px] font-medium mb-2" style="color: var(--neutral-400);">신규 환자</p>
-      <p class="num font-black mb-2" style="font-size: 26px;" id="kpi-new">15명</p>
-      <span class="kpi-badge-neutral">이번 주</span>
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">신규 환자</p>
+      <p class="kpi-val" id="kpi-new">15명</p>
+      <span class="badge-n">이번 주</span>
     </div>
   </div>
 
-  <!-- Charts Row 1 -->
   <div class="grid md:grid-cols-3 gap-4 mb-4">
-    <!-- Weekly revenue line -->
     <div class="card md:col-span-2">
       <div class="flex items-center justify-between mb-5">
         <div>
@@ -187,7 +194,6 @@
       </div>
       <canvas id="weeklyChart" style="max-height: 200px;"></canvas>
     </div>
-    <!-- Donut -->
     <div class="card">
       <p class="font-semibold mb-1" style="font-size: 15px;">시술별 매출 비중</p>
       <p class="text-[12px] mb-4" style="color: var(--neutral-400);">이번 달 기준</p>
@@ -195,15 +201,12 @@
     </div>
   </div>
 
-  <!-- Charts Row 2 -->
   <div class="grid md:grid-cols-2 gap-4 mb-4">
-    <!-- Marketing bar -->
     <div class="card">
       <p class="font-semibold mb-1" style="font-size: 15px;">마케팅 채널별 유입</p>
       <p class="text-[12px] mb-4" style="color: var(--neutral-400);">이번 달 신규 환자 기준</p>
       <canvas id="marketChart" style="max-height: 180px;"></canvas>
     </div>
-    <!-- Revisit trend -->
     <div class="card">
       <p class="font-semibold mb-1" style="font-size: 15px;">재방문율 추이</p>
       <p class="text-[12px] mb-4" style="color: var(--neutral-400);">최근 6개월</p>
@@ -211,73 +214,30 @@
     </div>
   </div>
 
-  <!-- Recent records table -->
-  <div class="card">
+  <div class="card mb-4">
     <div class="flex items-center justify-between mb-4">
       <p class="font-semibold" style="font-size: 15px;">최근 시술 기록</p>
       <button class="text-[13px] font-medium" style="color: var(--accent); background: none; border: none; cursor: pointer; min-height: 36px; padding: 6px 12px;">전체 보기</button>
     </div>
     <div class="overflow-x-auto">
       <table>
-        <thead>
-          <tr>
-            <th>날짜</th>
-            <th>시술명</th>
-            <th>환자 구분</th>
-            <th>채널</th>
-            <th>금액</th>
-          </tr>
-        </thead>
+        <thead><tr>
+          <th>날짜</th><th>시술명</th><th>환자 구분</th><th>채널</th><th>금액</th>
+        </tr></thead>
         <tbody>
-          <tr>
-            <td class="text-[13px]" style="color: var(--neutral-600);">03.20</td>
-            <td class="font-medium">보톡스 100u</td>
-            <td><span class="text-[12px] px-2.5 py-1 rounded-full font-medium" style="background: #F0FDF4; color: #16A34A;">재방문</span></td>
-            <td class="text-[13px]" style="color: var(--neutral-600);">인스타그램</td>
-            <td class="num font-semibold">180,000원</td>
-          </tr>
-          <tr>
-            <td class="text-[13px]" style="color: var(--neutral-600);">03.20</td>
-            <td class="font-medium">필러 1cc</td>
-            <td><span class="text-[12px] px-2.5 py-1 rounded-full font-medium" style="background: var(--accent-light); color: var(--accent);">신규</span></td>
-            <td class="text-[13px]" style="color: var(--neutral-600);">네이버</td>
-            <td class="num font-semibold">350,000원</td>
-          </tr>
-          <tr>
-            <td class="text-[13px]" style="color: var(--neutral-600);">03.19</td>
-            <td class="font-medium">실리프팅 30줄</td>
-            <td><span class="text-[12px] px-2.5 py-1 rounded-full font-medium" style="background: #F0FDF4; color: #16A34A;">재방문</span></td>
-            <td class="text-[13px]" style="color: var(--neutral-600);">카카오</td>
-            <td class="num font-semibold">1,200,000원</td>
-          </tr>
-          <tr>
-            <td class="text-[13px]" style="color: var(--neutral-600);">03.19</td>
-            <td class="font-medium">피코 토닝</td>
-            <td><span class="text-[12px] px-2.5 py-1 rounded-full font-medium" style="background: #F0FDF4; color: #16A34A;">재방문</span></td>
-            <td class="text-[13px]" style="color: var(--neutral-600);">인스타그램</td>
-            <td class="num font-semibold">250,000원</td>
-          </tr>
-          <tr>
-            <td class="text-[13px]" style="color: var(--neutral-600);">03.18</td>
-            <td class="font-medium">보톡스 200u</td>
-            <td><span class="text-[12px] px-2.5 py-1 rounded-full font-medium" style="background: var(--accent-light); color: var(--accent);">신규</span></td>
-            <td class="text-[13px]" style="color: var(--neutral-600);">네이버</td>
-            <td class="num font-semibold">320,000원</td>
-          </tr>
-          <tr>
-            <td class="text-[13px]" style="color: var(--neutral-600);">03.18</td>
-            <td class="font-medium">물광주사</td>
-            <td><span class="text-[12px] px-2.5 py-1 rounded-full font-medium" style="background: #F0FDF4; color: #16A34A;">재방문</span></td>
-            <td class="text-[13px]" style="color: var(--neutral-600);">지인 소개</td>
-            <td class="num font-semibold">200,000원</td>
-          </tr>
+          <tr><td class="text-[13px]" style="color:var(--neutral-600);">03.20</td><td class="font-medium">보톡스 100u</td><td><span class="badge-up" style="font-size:12px;">재방문</span></td><td class="text-[13px]" style="color:var(--neutral-600);">인스타그램</td><td class="num font-semibold">180,000원</td></tr>
+          <tr><td class="text-[13px]" style="color:var(--neutral-600);">03.20</td><td class="font-medium">필러 1cc</td><td><span class="badge-info" style="font-size:12px;">신규</span></td><td class="text-[13px]" style="color:var(--neutral-600);">네이버</td><td class="num font-semibold">350,000원</td></tr>
+          <tr><td class="text-[13px]" style="color:var(--neutral-600);">03.19</td><td class="font-medium">실리프팅 30줄</td><td><span class="badge-up" style="font-size:12px;">재방문</span></td><td class="text-[13px]" style="color:var(--neutral-600);">카카오</td><td class="num font-semibold">1,200,000원</td></tr>
+          <tr><td class="text-[13px]" style="color:var(--neutral-600);">03.19</td><td class="font-medium">피코 토닝</td><td><span class="badge-up" style="font-size:12px;">재방문</span></td><td class="text-[13px]" style="color:var(--neutral-600);">인스타그램</td><td class="num font-semibold">250,000원</td></tr>
+          <tr><td class="text-[13px]" style="color:var(--neutral-600);">03.18</td><td class="font-medium">보톡스 200u</td><td><span class="badge-info" style="font-size:12px;">신규</span></td><td class="text-[13px]" style="color:var(--neutral-600);">네이버</td><td class="num font-semibold">320,000원</td></tr>
+          <tr><td class="text-[13px]" style="color:var(--neutral-600);">03.18</td><td class="font-medium">물광주사</td><td><span class="badge-up" style="font-size:12px;">재방문</span></td><td class="text-[13px]" style="color:var(--neutral-600);">지인 소개</td><td class="num font-semibold">200,000원</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- ── Retention Analysis ── -->
-  <div class="card mt-4">
+  <!-- Retention -->
+  <div class="card">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
       <div>
         <p class="font-semibold" style="font-size: 15px;">환자 재방문 리텐션</p>
@@ -285,168 +245,519 @@
       </div>
       <div class="flex items-center gap-3 flex-wrap">
         <label class="flex items-center gap-1.5 text-[13px] cursor-pointer" style="color: var(--neutral-600);">
-          <input type="checkbox" id="channelCheck" style="accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; border-radius: 4px;">
+          <input type="checkbox" style="accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer;">
           유입 경로별 보기
         </label>
         <div class="flex items-center p-0.5 rounded-lg" style="background: var(--neutral-100);">
-          <button class="retention-toggle active" onclick="setRetentionType(this,'new')">신규 환자</button>
-          <button class="retention-toggle" onclick="setRetentionType(this,'all')">전체 환자</button>
+          <button class="rt-btn active" onclick="setRt(this)">신규 환자</button>
+          <button class="rt-btn" onclick="setRt(this)">전체 환자</button>
         </div>
-        <button style="display:flex; align-items:center; gap:6px; background:white; border:1px solid var(--neutral-200); color:var(--neutral-600); border-radius:8px; font-size:13px; font-weight:500; min-height:36px; padding:0 12px; cursor:pointer;">
+        <button style="display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--neutral-200);color:var(--neutral-600);border-radius:8px;font-size:13px;font-weight:500;min-height:36px;padding:0 12px;cursor:pointer;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           다운로드
         </button>
       </div>
     </div>
-
-    <!-- Area line chart -->
-    <div style="height: 200px; margin-bottom: 28px; position: relative;">
+    <div style="height:200px;margin-bottom:24px;position:relative;">
       <canvas id="retentionLineChart"></canvas>
     </div>
-
-    <!-- Cohort heatmap table -->
-    <div class="overflow-x-auto" style="margin: 0 -4px;">
-      <table id="cohortTable" style="width: 100%; border-collapse: collapse; min-width: 680px;"></table>
+    <div class="overflow-x-auto">
+      <table id="cohortTable" style="border-collapse:collapse;min-width:680px;"></table>
     </div>
   </div>
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ VIEW: INPUT ━━━━━━ -->
+<section class="view-section" id="view-input">
+  <div class="mb-8">
+    <p class="text-[13px] mb-1" style="color: var(--neutral-400);">데이터 입력</p>
+    <h1 class="font-black" style="font-size: 26px;">시술 입력</h1>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <!-- Form -->
+    <div class="card">
+      <p class="font-semibold mb-6" style="font-size: 15px;">오늘 시술 기록하기</p>
+      <div class="space-y-4">
+        <div>
+          <label class="form-label">날짜</label>
+          <input type="date" id="inp-date" class="form-input" value="2026-03-20">
+        </div>
+        <div>
+          <label class="form-label">환자 구분</label>
+          <div class="flex gap-4 mt-1">
+            <label class="flex items-center gap-2 cursor-pointer" style="min-height:44px;">
+              <input type="radio" name="inp-type" value="신규" checked style="accent-color:var(--accent);width:16px;height:16px;">
+              <span class="text-[14px]">신규</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer" style="min-height:44px;">
+              <input type="radio" name="inp-type" value="재방문" style="accent-color:var(--accent);width:16px;height:16px;">
+              <span class="text-[14px]">재방문</span>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label class="form-label">시술명</label>
+          <select id="inp-proc" class="form-input form-select">
+            <option value="">선택하세요</option>
+            <option>보톡스 100u</option>
+            <option>보톡스 200u</option>
+            <option>필러 1cc</option>
+            <option>필러 2cc</option>
+            <option>실리프팅 30줄</option>
+            <option>피코 토닝</option>
+            <option>물광주사</option>
+            <option>기타</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">시술 금액 (원)</label>
+          <input type="number" id="inp-price" class="form-input" placeholder="예: 180000" min="0" step="10000">
+        </div>
+        <div>
+          <label class="form-label">유입 채널</label>
+          <select id="inp-channel" class="form-input form-select">
+            <option value="">선택하세요</option>
+            <option>인스타그램</option>
+            <option>네이버</option>
+            <option>카카오</option>
+            <option>지인 소개</option>
+            <option>기타</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">메모 (선택)</label>
+          <textarea id="inp-memo" class="form-input" rows="3" placeholder="특이사항이 있으면 입력하세요" style="resize:vertical;min-height:80px;"></textarea>
+        </div>
+        <button onclick="saveRecord()" style="width:100%;background:var(--accent);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;min-height:48px;cursor:pointer;transition:background 150ms;" onmouseover="this.style.background='#1D4ED8'" onmouseout="this.style.background='var(--accent)'">
+          저장하기
+        </button>
+      </div>
+    </div>
+
+    <!-- Today's records -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <p class="font-semibold" style="font-size: 15px;">오늘 입력 내역</p>
+        <span class="badge-info" id="inp-count-badge">0건</span>
+      </div>
+      <div id="inp-records-empty" class="flex flex-col items-center justify-center py-12" style="color:var(--neutral-400);">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:12px;opacity:0.4;"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        <p class="text-[14px]">아직 입력된 기록이 없어요</p>
+      </div>
+      <div class="overflow-x-auto" id="inp-records-wrap" style="display:none;">
+        <table>
+          <thead><tr><th>시술명</th><th>구분</th><th>채널</th><th>금액</th><th></th></tr></thead>
+          <tbody id="inp-records-body"></tbody>
+        </table>
+      </div>
+      <div class="mt-4 pt-4 border-t" style="border-color:var(--neutral-100);display:none;" id="inp-total-row">
+        <div class="flex justify-between items-center">
+          <span class="text-[13px] font-semibold" style="color:var(--neutral-600);">오늘 합계</span>
+          <span class="num font-black text-[18px]" id="inp-total">0원</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ VIEW: REVENUE ━━━━ -->
+<section class="view-section" id="view-revenue">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+      <p class="text-[13px] mb-1" style="color: var(--neutral-400);">분석</p>
+      <h1 class="font-black" style="font-size: 26px;">매출 분석</h1>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <select class="form-input form-select" style="width:auto;min-width:130px;font-size:13px;padding:8px 32px 8px 12px;min-height:40px;">
+        <option>2026년 3월</option><option>2026년 2월</option><option>2026년 1월</option>
+      </select>
+      <select class="form-input form-select" style="width:auto;min-width:130px;font-size:13px;padding:8px 32px 8px 12px;min-height:40px;">
+        <option>전체 시술</option><option>보톡스</option><option>필러</option><option>리프팅</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="kpi-card">
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">이번 달 매출</p>
+      <p class="kpi-val">84.2M</p>
+      <span class="badge-up">↑ 9.3%</span>
+    </div>
+    <div class="kpi-card">
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">전월 대비</p>
+      <p class="kpi-val">+7.2M</p>
+      <span class="badge-up">전월 77.0M</span>
+    </div>
+    <div class="kpi-card">
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">평균 시술단가</p>
+      <p class="kpi-val">460K</p>
+      <span class="badge-up">↑ 2.1%</span>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4 mb-4">
+    <div class="card">
+      <p class="font-semibold mb-1" style="font-size:15px;">월별 매출 추이</p>
+      <p class="text-[12px] mb-4" style="color:var(--neutral-400);">최근 12개월 · 단위: 만원</p>
+      <canvas id="revMonthChart" style="max-height:200px;"></canvas>
+    </div>
+    <div class="card">
+      <p class="font-semibold mb-1" style="font-size:15px;">시술별 매출 구성</p>
+      <p class="text-[12px] mb-4" style="color:var(--neutral-400);">월별 누적 · 단위: 만원</p>
+      <canvas id="revStackChart" style="max-height:200px;"></canvas>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <p class="font-semibold mb-1" style="font-size:15px;">시간대별 예약 분포</p>
+    <p class="text-[12px] mb-4" style="color:var(--neutral-400);">이번 달 기준</p>
+    <canvas id="revTimeChart" style="max-height:160px;"></canvas>
+  </div>
+
+  <div class="card">
+    <p class="font-semibold mb-4" style="font-size:15px;">시술별 매출 상세</p>
+    <div class="overflow-x-auto">
+      <table>
+        <thead><tr><th>시술명</th><th>건수</th><th>평균 단가</th><th>총 매출</th><th>비중</th></tr></thead>
+        <tbody>
+          <tr><td class="font-medium">보톡스</td><td class="num">68건</td><td class="num">192,000원</td><td class="num font-semibold">13,056,000원</td><td><span class="badge-info">35%</span></td></tr>
+          <tr><td class="font-medium">필러</td><td class="num">42건</td><td class="num">628,000원</td><td class="num font-semibold">26,376,000원</td><td><span class="badge-info">28%</span></td></tr>
+          <tr><td class="font-medium">실리프팅</td><td class="num">31건</td><td class="num">840,000원</td><td class="num font-semibold">26,040,000원</td><td><span class="badge-info">22%</span></td></tr>
+          <tr><td class="font-medium">피코 토닝</td><td class="num">25건</td><td class="num">248,000원</td><td class="num font-semibold">6,200,000원</td><td><span class="badge-n">10%</span></td></tr>
+          <tr><td class="font-medium">물광주사·기타</td><td class="num">17건</td><td class="num">313,000원</td><td class="num font-semibold">5,321,000원</td><td><span class="badge-n">7%</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ VIEW: PATIENTS ━━━ -->
+<section class="view-section" id="view-patients">
+  <div class="mb-8">
+    <p class="text-[13px] mb-1" style="color: var(--neutral-400);">분석</p>
+    <h1 class="font-black" style="font-size: 26px;">환자 분석</h1>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="kpi-card">
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">총 등록 환자</p>
+      <p class="kpi-val">1,247명</p>
+      <span class="badge-up">↑ 61명 이번 달</span>
+    </div>
+    <div class="kpi-card">
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">이번 달 신규</p>
+      <p class="kpi-val">61명</p>
+      <span class="badge-up">↑ 8.6%</span>
+    </div>
+    <div class="kpi-card">
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">평균 재방문율</p>
+      <p class="kpi-val">68%</p>
+      <span class="badge-up">↑ 3%p</span>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-4 mb-4">
+    <div class="card md:col-span-2">
+      <p class="font-semibold mb-1" style="font-size:15px;">연령대별 환자 분포</p>
+      <p class="text-[12px] mb-4" style="color:var(--neutral-400);">전체 등록 환자 기준</p>
+      <canvas id="patAgeChart" style="max-height:200px;"></canvas>
+    </div>
+    <div class="card">
+      <p class="font-semibold mb-1" style="font-size:15px;">성별 비율</p>
+      <p class="text-[12px] mb-4" style="color:var(--neutral-400);">전체 기준</p>
+      <canvas id="patGenderChart" style="max-height:180px;"></canvas>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <p class="font-semibold mb-1" style="font-size:15px;">환자 등록 추이</p>
+    <p class="text-[12px] mb-4" style="color:var(--neutral-400);">최근 6개월 신규 등록</p>
+    <canvas id="patTrendChart" style="max-height:160px;"></canvas>
+  </div>
+
+  <div class="card">
+    <p class="font-semibold mb-4" style="font-size:15px;">환자 세그먼트 분석</p>
+    <div class="overflow-x-auto">
+      <table>
+        <thead><tr><th>세그먼트</th><th>비율</th><th>평균 방문 횟수</th><th>평균 결제액</th><th>주 시술</th></tr></thead>
+        <tbody>
+          <tr><td class="font-medium">30대 여성 직장인</td><td><span class="badge-info">34%</span></td><td class="num">4.2회/년</td><td class="num font-semibold">380,000원</td><td>보톡스·필러</td></tr>
+          <tr><td class="font-medium">40대 여성 주부</td><td><span class="badge-info">28%</span></td><td class="num">5.8회/년</td><td class="num font-semibold">620,000원</td><td>리프팅·필러</td></tr>
+          <tr><td class="font-medium">20대 여성</td><td><span class="badge-n">18%</span></td><td class="num">2.1회/년</td><td class="num font-semibold">210,000원</td><td>보톡스·토닝</td></tr>
+          <tr><td class="font-medium">50대 이상</td><td><span class="badge-n">14%</span></td><td class="num">6.4회/년</td><td class="num font-semibold">780,000원</td><td>리프팅·실</td></tr>
+          <tr><td class="font-medium">남성</td><td><span class="badge-n">6%</span></td><td class="num">1.8회/년</td><td class="num font-semibold">290,000원</td><td>보톡스</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ VIEW: COMPETITORS ━━ -->
+<section class="view-section" id="view-competitors">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+      <p class="text-[13px] mb-1" style="color: var(--neutral-400);">분석</p>
+      <h1 class="font-black" style="font-size: 26px;">경쟁사 모니터링</h1>
+    </div>
+    <span class="badge-info" style="font-size:13px;padding:6px 12px;">네이버·카카오 리뷰 자동 수집</span>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="kpi-card">
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">우리 병원 평점</p>
+      <p class="kpi-val">4.8</p>
+      <span class="badge-up">↑ 0.1 이번 달</span>
+    </div>
+    <div class="kpi-card">
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">총 리뷰 수</p>
+      <p class="kpi-val">1,342개</p>
+      <span class="badge-up">↑ 47개 이번 달</span>
+    </div>
+    <div class="kpi-card">
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">긍정 리뷰 비율</p>
+      <p class="kpi-val">91%</p>
+      <span class="badge-up">↑ 2%p</span>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <p class="font-semibold mb-1" style="font-size:15px;">평점 추이 비교</p>
+    <p class="text-[12px] mb-4" style="color:var(--neutral-400);">최근 6개월 · 네이버 기준</p>
+    <canvas id="compRatingChart" style="max-height:200px;"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="flex items-center justify-between mb-4">
+      <p class="font-semibold" style="font-size:15px;">최근 리뷰</p>
+      <div class="flex gap-2">
+        <span class="text-[12px]" style="color:var(--neutral-400);">네이버</span>
+        <span class="text-[12px]" style="color:var(--neutral-400);">·</span>
+        <span class="text-[12px]" style="color:var(--neutral-400);">카카오</span>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table>
+        <thead><tr><th>날짜</th><th>채널</th><th>별점</th><th>리뷰 내용</th><th>감성</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="text-[13px]" style="color:var(--neutral-600);">03.20</td>
+            <td><span class="badge-n" style="font-size:12px;">네이버</span></td>
+            <td class="num">★ 5.0</td>
+            <td class="text-[13px]" style="color:var(--neutral-600);max-width:300px;">원장님이 정말 꼼꼼하게 봐주셨어요. 결과도 만족...</td>
+            <td><span class="badge-up" style="font-size:12px;">긍정</span></td>
+          </tr>
+          <tr>
+            <td class="text-[13px]" style="color:var(--neutral-600);">03.19</td>
+            <td><span class="badge-n" style="font-size:12px;">카카오</span></td>
+            <td class="num">★ 4.0</td>
+            <td class="text-[13px]" style="color:var(--neutral-600);max-width:300px;">대기 시간이 좀 길었지만 시술 결과는 좋았어요.</td>
+            <td><span class="badge-n" style="font-size:12px;">중립</span></td>
+          </tr>
+          <tr>
+            <td class="text-[13px]" style="color:var(--neutral-600);">03.19</td>
+            <td><span class="badge-n" style="font-size:12px;">네이버</span></td>
+            <td class="num">★ 5.0</td>
+            <td class="text-[13px]" style="color:var(--neutral-600);max-width:300px;">보톡스 효과가 자연스러워서 너무 좋아요. 재방문 예정!</td>
+            <td><span class="badge-up" style="font-size:12px;">긍정</span></td>
+          </tr>
+          <tr>
+            <td class="text-[13px]" style="color:var(--neutral-600);">03.18</td>
+            <td><span class="badge-n" style="font-size:12px;">카카오</span></td>
+            <td class="num">★ 2.0</td>
+            <td class="text-[13px]" style="color:var(--neutral-600);max-width:300px;">예약 시스템이 불편해요. 전화가 잘 안 받아집니다.</td>
+            <td><span style="background:#FEF2F2;color:var(--error);font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;">부정</span></td>
+          </tr>
+          <tr>
+            <td class="text-[13px]" style="color:var(--neutral-600);">03.17</td>
+            <td><span class="badge-n" style="font-size:12px;">네이버</span></td>
+            <td class="num">★ 5.0</td>
+            <td class="text-[13px]" style="color:var(--neutral-600);max-width:300px;">필러 맞고 붓기도 별로 없고 자연스럽게 잘 됐어요.</td>
+            <td><span class="badge-up" style="font-size:12px;">긍정</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ VIEW: MARKETING ━━━ -->
+<section class="view-section" id="view-marketing">
+  <div class="mb-8">
+    <p class="text-[13px] mb-1" style="color: var(--neutral-400);">분석</p>
+    <h1 class="font-black" style="font-size: 26px;">마케팅 채널</h1>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="kpi-card">
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">이번 달 신규 유입</p>
+      <p class="kpi-val">61명</p>
+      <span class="badge-up">↑ 8.6%</span>
+    </div>
+    <div class="kpi-card">
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">평균 CPA</p>
+      <p class="kpi-val">28,700원</p>
+      <span class="badge-down">↑ 3.2%</span>
+    </div>
+    <div class="kpi-card">
+      <p class="text-[12px] font-medium" style="color: var(--neutral-400);">최고 ROI 채널</p>
+      <p class="kpi-val">지인 소개</p>
+      <span class="badge-up">ROI 840%</span>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4 mb-4">
+    <div class="card">
+      <p class="font-semibold mb-1" style="font-size:15px;">채널별 신규 환자</p>
+      <p class="text-[12px] mb-4" style="color:var(--neutral-400);">이번 달 기준</p>
+      <canvas id="mkBarChart" style="max-height:200px;"></canvas>
+    </div>
+    <div class="card">
+      <p class="font-semibold mb-1" style="font-size:15px;">채널별 월별 추이</p>
+      <p class="text-[12px] mb-4" style="color:var(--neutral-400);">최근 6개월</p>
+      <canvas id="mkTrendChart" style="max-height:200px;"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="font-semibold mb-4" style="font-size:15px;">채널별 성과 상세</p>
+    <div class="overflow-x-auto">
+      <table>
+        <thead><tr><th>채널</th><th>신규 환자</th><th>광고비</th><th>CPA</th><th>전환율</th><th>ROI</th></tr></thead>
+        <tbody>
+          <tr><td class="font-medium">인스타그램</td><td class="num">26명</td><td class="num">480,000원</td><td class="num">18,462원</td><td class="num">4.2%</td><td><span class="badge-up">520%</span></td></tr>
+          <tr><td class="font-medium">네이버</td><td class="num">19명</td><td class="num">760,000원</td><td class="num">40,000원</td><td class="num">2.8%</td><td><span class="badge-n">240%</span></td></tr>
+          <tr><td class="font-medium">카카오</td><td class="num">8명</td><td class="num">320,000원</td><td class="num">40,000원</td><td class="num">1.9%</td><td><span class="badge-n">210%</span></td></tr>
+          <tr><td class="font-medium">지인 소개</td><td class="num">8명</td><td class="num">0원</td><td class="num">0원</td><td class="num">—</td><td><span class="badge-up">840%</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ VIEW: SETTINGS ━━━ -->
+<section class="view-section" id="view-settings">
+  <div class="mb-8">
+    <p class="text-[13px] mb-1" style="color: var(--neutral-400);">기타</p>
+    <h1 class="font-black" style="font-size: 26px;">설정</h1>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="card">
+      <p class="font-semibold mb-4" style="font-size:15px;">병원 정보</p>
+      <div class="space-y-4">
+        <div><label class="form-label">병원명</label><input class="form-input" value="강남 피부과"></div>
+        <div><label class="form-label">원장명</label><input class="form-input" value="김○○"></div>
+        <div><label class="form-label">연락처</label><input class="form-input" value="02-1234-5678"></div>
+        <button style="background:var(--accent);color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;min-height:44px;padding:0 24px;cursor:pointer;">저장</button>
+      </div>
+    </div>
+    <div class="card">
+      <p class="font-semibold mb-4" style="font-size:15px;">알림 설정</p>
+      <div class="space-y-3">
+        <label class="flex items-center justify-between" style="min-height:44px;cursor:pointer;">
+          <span class="text-[14px]">일간 매출 리포트</span>
+          <input type="checkbox" checked style="accent-color:var(--accent);width:18px;height:18px;">
+        </label>
+        <label class="flex items-center justify-between" style="min-height:44px;cursor:pointer;">
+          <span class="text-[14px]">부정 리뷰 알림</span>
+          <input type="checkbox" checked style="accent-color:var(--accent);width:18px;height:18px;">
+        </label>
+        <label class="flex items-center justify-between" style="min-height:44px;cursor:pointer;">
+          <span class="text-[14px]">주간 분석 요약</span>
+          <input type="checkbox" style="accent-color:var(--accent);width:18px;height:18px;">
+        </label>
+        <label class="flex items-center justify-between" style="min-height:44px;cursor:pointer;">
+          <span class="text-[14px]">경쟁사 평점 변동</span>
+          <input type="checkbox" checked style="accent-color:var(--accent);width:18px;height:18px;">
+        </label>
+      </div>
+    </div>
+  </div>
+</section>
 
 </main>
 
 <script>
-const chartDefaults = {
-  font: { family: "'Pretendard Variable', Pretendard, sans-serif", size: 12 },
-  color: '#8B95A1'
-};
-Chart.defaults.font = chartDefaults.font;
-Chart.defaults.color = chartDefaults.color;
+// ── Chart defaults ───────────────────────────────────────────────
+Chart.defaults.font = { family: "'Pretendard Variable', Pretendard, sans-serif", size: 12 };
+Chart.defaults.color = '#8B95A1';
+const ACCENT = '#2563EB', GRID = '#F3F4F6';
 
-// Weekly line chart
-new Chart(document.getElementById('weeklyChart'), {
-  type: 'line',
-  data: {
-    labels: ['월','화','수','목','금','토','일'],
-    datasets: [
-      {
-        label: '이번 주',
-        data: [210, 180, 320, 270, 410, 530, 120],
-        borderColor: '#2563EB',
-        backgroundColor: 'rgba(37,99,235,0.08)',
-        fill: true, tension: 0.4,
-        pointBackgroundColor: '#2563EB',
-        pointRadius: 4, pointHoverRadius: 6, borderWidth: 2.5
-      },
-      {
-        label: '지난 주',
-        data: [185, 210, 280, 240, 380, 460, 150],
-        borderColor: '#D1D5DB',
-        backgroundColor: 'transparent',
-        fill: false, tension: 0.4,
-        pointBackgroundColor: '#D1D5DB',
-        pointRadius: 3, borderWidth: 1.5,
-        borderDash: [4, 4]
-      }
-    ]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: {
-          label: ctx => ' ' + ctx.raw.toLocaleString() + '만원'
-        }
-      }
+// ── View registry (track Chart.js instances for destroy) ─────────
+const chartRegistry = {};
+function registerChart(id, instance) {
+  if (chartRegistry[id]) { chartRegistry[id].destroy(); }
+  chartRegistry[id] = instance;
+}
+
+// ── Navigation ───────────────────────────────────────────────────
+function showView(id, el) {
+  document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(a => a.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  initView(id);
+  window.scrollTo(0, 0);
+}
+
+const viewInited = {};
+function initView(id) {
+  if (viewInited[id]) return;
+  viewInited[id] = true;
+  if (id === 'dashboard')   initDashboard();
+  if (id === 'revenue')     initRevenue();
+  if (id === 'patients')    initPatients();
+  if (id === 'competitors') initCompetitors();
+  if (id === 'marketing')   initMarketing();
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────────
+function initDashboard() {
+  registerChart('weeklyChart', new Chart(document.getElementById('weeklyChart'), {
+    type: 'line',
+    data: {
+      labels: ['월','화','수','목','금','토','일'],
+      datasets: [
+        { label:'이번 주', data:[210,180,320,270,410,530,120], borderColor:ACCENT, backgroundColor:'rgba(37,99,235,0.08)', fill:true, tension:0.4, pointBackgroundColor:ACCENT, pointRadius:4, borderWidth:2.5 },
+        { label:'지난 주', data:[185,210,280,240,380,460,150], borderColor:'#D1D5DB', backgroundColor:'transparent', fill:false, tension:0.4, pointBackgroundColor:'#D1D5DB', pointRadius:3, borderWidth:1.5, borderDash:[4,4] }
+      ]
     },
-    scales: {
-      x: { grid: { display: false } },
-      y: {
-        grid: { color: '#F3F4F6' },
-        ticks: { callback: v => v + '만' }
-      }
-    }
-  }
-});
+    options:{ responsive:true, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>' '+c.raw.toLocaleString()+'만원'}} }, scales:{ x:{grid:{display:false}}, y:{grid:{color:GRID},ticks:{callback:v=>v+'만'}} } }
+  }));
 
-// Donut chart
-new Chart(document.getElementById('donutChart'), {
-  type: 'doughnut',
-  data: {
-    labels: ['보톡스','필러','리프팅','스킨케어','기타'],
-    datasets: [{
-      data: [35, 28, 22, 10, 5],
-      backgroundColor: ['#2563EB','#60A5FA','#93C5FD','#BFDBFE','#E0EAFF'],
-      borderWidth: 0, hoverOffset: 4
-    }]
-  },
-  options: {
-    cutout: '68%',
-    plugins: {
-      legend: {
-        position: 'bottom',
-        labels: { padding: 14, boxWidth: 10, boxHeight: 10, font: { size: 12 } }
-      }
-    }
-  }
-});
+  registerChart('donutChart', new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: { labels:['보톡스','필러','리프팅','스킨케어','기타'], datasets:[{ data:[35,28,22,10,5], backgroundColor:['#2563EB','#60A5FA','#93C5FD','#BFDBFE','#E0EAFF'], borderWidth:0, hoverOffset:4 }] },
+    options:{ cutout:'68%', plugins:{ legend:{ position:'bottom', labels:{padding:14,boxWidth:10,boxHeight:10} } } }
+  }));
 
-// Marketing bar
-new Chart(document.getElementById('marketChart'), {
-  type: 'bar',
-  data: {
-    labels: ['인스타그램','네이버','카카오','지인소개','기타'],
-    datasets: [{
-      data: [42, 31, 18, 22, 9],
-      backgroundColor: '#2563EB',
-      borderRadius: 6,
-      borderSkipped: false
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { display: false } },
-      y: { grid: { color: '#F3F4F6' }, ticks: { callback: v => v + '명' } }
-    }
-  }
-});
+  registerChart('marketChart', new Chart(document.getElementById('marketChart'), {
+    type: 'bar',
+    data: { labels:['인스타그램','네이버','카카오','지인소개','기타'], datasets:[{ data:[42,31,18,22,9], backgroundColor:ACCENT, borderRadius:6, borderSkipped:false }] },
+    options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:GRID},ticks:{callback:v=>v+'명'}} } }
+  }));
 
-// Revisit line
-new Chart(document.getElementById('revisitChart'), {
-  type: 'line',
-  data: {
-    labels: ['10월','11월','12월','1월','2월','3월'],
-    datasets: [{
-      data: [52, 55, 58, 61, 65, 68],
-      borderColor: '#16A34A',
-      backgroundColor: 'rgba(22,163,74,0.08)',
-      fill: true, tension: 0.4,
-      pointBackgroundColor: '#16A34A',
-      pointRadius: 4, borderWidth: 2.5
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { display: false } },
-      y: {
-        grid: { color: '#F3F4F6' },
-        min: 40, max: 80,
-        ticks: { callback: v => v + '%' }
-      }
-    }
-  }
-});
+  registerChart('revisitChart', new Chart(document.getElementById('revisitChart'), {
+    type: 'line',
+    data: { labels:['10월','11월','12월','1월','2월','3월'], datasets:[{ data:[52,55,58,61,65,68], borderColor:'#16A34A', backgroundColor:'rgba(22,163,74,0.08)', fill:true, tension:0.4, pointBackgroundColor:'#16A34A', pointRadius:4, borderWidth:2.5 }] },
+    options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:GRID},min:40,max:80,ticks:{callback:v=>v+'%'}} } }
+  }));
 
-// Period toggle
+  buildCohortTable();
+  registerChart('retentionLineChart', new Chart(document.getElementById('retentionLineChart'), {
+    type:'line',
+    data:{ labels:['DAY 0','DAY 1','DAY 2','DAY 3','DAY 4','DAY 5','DAY 6','DAY 7','DAY 8','DAY 9','DAY 10'], datasets:[{ label:'재방문율', data:[100,5,4,4,2,2,5,3,6,5,2], borderColor:ACCENT, backgroundColor:'rgba(37,99,235,0.07)', fill:true, tension:0.4, pointBackgroundColor:ACCENT, pointRadius:3, borderWidth:2 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw+'%'}}}, scales:{ x:{grid:{display:false},ticks:{font:{size:11}}}, y:{grid:{color:GRID},min:0,max:100,ticks:{callback:v=>v+'%',stepSize:20,font:{size:11}}} } }
+  }));
+}
+
 const periodData = {
-  week: { revenue: '20.6M', count: '47건', revisit: '68%', newP: '15명' },
-  month: { revenue: '84.2M', count: '183건', revisit: '66%', newP: '61명' },
-  year: { revenue: '920M', count: '2,104건', revisit: '64%', newP: '712명' }
+  week:  { revenue:'20.6M', count:'47건', revisit:'68%', newP:'15명' },
+  month: { revenue:'84.2M', count:'183건', revisit:'66%', newP:'61명' },
+  year:  { revenue:'920M', count:'2,104건', revisit:'64%', newP:'712명' }
 };
 function setPeriod(btn, p) {
-  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   const d = periodData[p];
   document.getElementById('kpi-revenue').textContent = d.revenue;
@@ -454,123 +765,190 @@ function setPeriod(btn, p) {
   document.getElementById('kpi-revisit').textContent = d.revisit;
   document.getElementById('kpi-new').textContent = d.newP;
 }
-
-// ── Retention cohort ──────────────────────────────────────────
-const cohortRows = [
-  { label: '전체',        count: 131, isTotal: true,
-    days:   [100, 5, 4, 4, 2, 2, 5, 3, 6, 5, 2],
-    counts: [131, 7, 5, 5, 3, 3, 7, 4, 8, 7, 3] },
-  { label: '3.10 (화)',   count: 47,
-    days:   [100,11, 6, 9, 4, 4, 9, 6,11, 9, 2],
-    counts: [ 47, 5, 3, 4, 2, 2, 4, 3, 5, 4, 1] },
-  { label: '3.11 (수)',   count: 31,
-    days:   [100, 3, 6, 3, 0, 0, 3, 0, 0, 0, null],
-    counts: [ 31, 1, 2, 1, 0, 0, 1, 0, 0, 0, null] },
-  { label: '3.12 (목)',   count:  5,
-    days:   [100, 0, 0, 0, 0, 0, 0, 0, 0, null, null],
-    counts: [  5, 0, 0, 0, 0, 0, 0, 0, 0, null, null] },
-  { label: '3.13 (금)',   count: 14,
-    days:   [100, 0, 0, 0, 0, 0, 0, 0, null, null, null],
-    counts: [ 14, 0, 0, 0, 0, 0, 0, 0, null, null, null] },
-  { label: '3.14 (토)',   count:  4,
-    days:   [100, 0, 0, 0, 0, 0, 0, null, null, null, null],
-    counts: [  4, 0, 0, 0, 0, 0, 0, null, null, null, null] },
-  { label: '3.15 (일)',   count:  5,
-    days:   [100, 0, 0, 0, 0, 0, null, null, null, null, null],
-    counts: [  5, 0, 0, 0, 0, 0, null, null, null, null, null] },
-  { label: '3.16 (월)',   count:  6,
-    days:   [100, 0, 0, 0, 0, null, null, null, null, null, null],
-    counts: [  6, 0, 0, 0, 0, null, null, null, null, null, null] },
-  { label: '3.17 (화)',   count:  5,
-    days:   [100, 0, 0, 0, null, null, null, null, null, null, null],
-    counts: [  5, 0, 0, 0, null, null, null, null, null, null, null] },
-  { label: '3.18 (수)',   count:  4,
-    days:   [100, 0, 0, null, null, null, null, null, null, null, null],
-    counts: [  4, 0, 0, null, null, null, null, null, null, null, null] },
-];
-
-function getCellStyle(pct) {
-  if (pct === null) return { bg: '#F4F6FA', text: 'transparent', sub: 'transparent' };
-  if (pct === 100)  return { bg: 'transparent', text: 'var(--neutral-700)', sub: 'transparent' };
-  if (pct === 0)    return { bg: 'transparent', text: '#CBD5E1', sub: 'transparent' };
-  // Interpolate accent color: intensity 0→12% maps to 0→1
-  const t = Math.min(pct / 12, 1);
-  const r = Math.round(37  + (219 - 37)  * (1 - t));
-  const g = Math.round(99  + (234 - 99)  * (1 - t));
-  const b = Math.round(235 + (254 - 235) * (1 - t));
-  const textColor = t > 0.55 ? 'white' : '#1E40AF';
-  return { bg: `rgb(${r},${g},${b})`, text: textColor, sub: textColor };
+function setRt(btn) {
+  document.querySelectorAll('.rt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 }
 
+// Retention cohort
+const cohortRows = [
+  { label:'전체', count:131, isTotal:true, days:[100,5,4,4,2,2,5,3,6,5,2], counts:[131,7,5,5,3,3,7,4,8,7,3] },
+  { label:'3.10 (화)', count:47, days:[100,11,6,9,4,4,9,6,11,9,2], counts:[47,5,3,4,2,2,4,3,5,4,1] },
+  { label:'3.11 (수)', count:31, days:[100,3,6,3,0,0,3,0,0,0,null], counts:[31,1,2,1,0,0,1,0,0,0,null] },
+  { label:'3.12 (목)', count:5,  days:[100,0,0,0,0,0,0,0,0,null,null], counts:[5,0,0,0,0,0,0,0,0,null,null] },
+  { label:'3.13 (금)', count:14, days:[100,0,0,0,0,0,0,0,null,null,null], counts:[14,0,0,0,0,0,0,0,null,null,null] },
+  { label:'3.14 (토)', count:4,  days:[100,0,0,0,0,0,0,null,null,null,null], counts:[4,0,0,0,0,0,0,null,null,null,null] },
+  { label:'3.15 (일)', count:5,  days:[100,0,0,0,0,0,null,null,null,null,null], counts:[5,0,0,0,0,0,null,null,null,null,null] },
+  { label:'3.16 (월)', count:6,  days:[100,0,0,0,0,null,null,null,null,null,null], counts:[6,0,0,0,0,null,null,null,null,null,null] },
+  { label:'3.17 (화)', count:5,  days:[100,0,0,0,null,null,null,null,null,null,null], counts:[5,0,0,0,null,null,null,null,null,null,null] },
+  { label:'3.18 (수)', count:4,  days:[100,0,0,null,null,null,null,null,null,null,null], counts:[4,0,0,null,null,null,null,null,null,null,null] },
+];
+function getCellStyle(pct) {
+  if (pct===null) return {bg:'#F4F6FA',text:'transparent',sub:'transparent'};
+  if (pct===100)  return {bg:'transparent',text:'var(--neutral-700)',sub:'transparent'};
+  if (pct===0)    return {bg:'transparent',text:'#CBD5E1',sub:'transparent'};
+  const t = Math.min(pct/12,1);
+  const r=Math.round(37+(219-37)*(1-t)), g=Math.round(99+(234-99)*(1-t)), b=Math.round(235+(254-235)*(1-t));
+  return {bg:`rgb(${r},${g},${b})`,text:t>0.55?'white':'#1E40AF',sub:t>0.55?'white':'#1E40AF'};
+}
 function buildCohortTable() {
   const t = document.getElementById('cohortTable');
-  const cols = ['초진 날짜', '환자 수', 'DAY 0','DAY 1','DAY 2','DAY 3','DAY 4','DAY 5','DAY 6','DAY 7','DAY 8','DAY 9','DAY 10'];
-  let html = '<thead><tr>';
-  cols.forEach((c, i) => {
-    html += `<th class="cohort-th${i <= 1 ? ' left' : ''}">${c}</th>`;
-  });
-  html += '</tr></thead><tbody>';
-
-  cohortRows.forEach(row => {
-    html += `<tr style="${row.isTotal ? 'background:#FAFAFA;' : ''}">`;
-    html += `<td class="cohort-td-label" style="font-weight:${row.isTotal ? '600' : '400'};">${row.label}</td>`;
-    html += `<td class="cohort-td-count">${row.count}</td>`;
-    row.days.forEach((pct, di) => {
-      const s = getCellStyle(pct);
-      if (pct === null) {
-        html += `<td class="cohort-td"><div class="cohort-cell" style="background:${s.bg};"></div></td>`;
-        return;
-      }
-      const cnt = row.counts[di];
-      html += `<td class="cohort-td">
-        <div class="cohort-cell" style="background:${s.bg};">
-          <span style="font-size:13px; font-weight:${pct > 0 ? '600' : '400'}; color:${s.text}; font-variant-numeric:tabular-nums;">${pct}%</span>
-          ${di > 0 && cnt !== null ? `<span style="font-size:11px; color:${s.sub}; opacity:0.8;">${cnt}</span>` : ''}
-        </div>
-      </td>`;
+  const cols=['초진 날짜','환자 수','DAY 0','DAY 1','DAY 2','DAY 3','DAY 4','DAY 5','DAY 6','DAY 7','DAY 8','DAY 9','DAY 10'];
+  let html='<thead><tr>';
+  cols.forEach((c,i)=>{ html+=`<th class="cohort-th${i<=1?' left':''}">${c}</th>`; });
+  html+='</tr></thead><tbody>';
+  cohortRows.forEach(row=>{
+    html+=`<tr style="${row.isTotal?'background:#FAFAFA;':''}">`;
+    html+=`<td class="cohort-td-label" style="font-weight:${row.isTotal?'600':'400'};">${row.label}</td>`;
+    html+=`<td class="cohort-td-count">${row.count}</td>`;
+    row.days.forEach((pct,di)=>{
+      const s=getCellStyle(pct), cnt=row.counts[di];
+      if(pct===null){ html+=`<td class="cohort-td"><div class="cohort-cell" style="background:${s.bg};"></div></td>`; return; }
+      html+=`<td class="cohort-td"><div class="cohort-cell" style="background:${s.bg};">
+        <span style="font-size:13px;font-weight:${pct>0?'600':'400'};color:${s.text};font-variant-numeric:tabular-nums;">${pct}%</span>
+        ${di>0&&cnt!==null?`<span style="font-size:11px;color:${s.sub};opacity:0.8;">${cnt}</span>`:''}
+      </div></td>`;
     });
-    html += '</tr>';
+    html+='</tr>';
   });
-  html += '</tbody>';
-  t.innerHTML = html;
+  html+='</tbody>';
+  t.innerHTML=html;
 }
-buildCohortTable();
 
-// Retention area chart
-new Chart(document.getElementById('retentionLineChart'), {
-  type: 'line',
-  data: {
-    labels: ['DAY 0','DAY 1','DAY 2','DAY 3','DAY 4','DAY 5','DAY 6','DAY 7','DAY 8','DAY 9','DAY 10'],
-    datasets: [{
-      label: '재방문율',
-      data: [100, 5, 4, 4, 2, 2, 5, 3, 6, 5, 2],
-      borderColor: '#2563EB',
-      backgroundColor: 'rgba(37,99,235,0.07)',
-      fill: true, tension: 0.4,
-      pointBackgroundColor: '#2563EB',
-      pointRadius: 3, pointHoverRadius: 5, borderWidth: 2
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.raw + '%' } } },
-    scales: {
-      x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-      y: {
-        grid: { color: '#F3F4F6' },
-        min: 0, max: 100,
-        ticks: { callback: v => v + '%', stepSize: 20, font: { size: 11 } }
-      }
-    }
-  }
-});
+// ── REVENUE ──────────────────────────────────────────────────────
+function initRevenue() {
+  registerChart('revMonthChart', new Chart(document.getElementById('revMonthChart'), {
+    type:'line',
+    data:{ labels:['4월','5월','6월','7월','8월','9월','10월','11월','12월','1월','2월','3월'], datasets:[{ label:'매출', data:[620,680,710,740,690,780,820,850,920,770,770,842], borderColor:ACCENT, backgroundColor:'rgba(37,99,235,0.07)', fill:true, tension:0.4, pointBackgroundColor:ACCENT, pointRadius:3, borderWidth:2 }] },
+    options:{ responsive:true, plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw+'만원'}}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:GRID},ticks:{callback:v=>v+'만'}} } }
+  }));
 
-function setRetentionType(btn, type) {
-  document.querySelectorAll('.retention-toggle').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  // 데이터 전환 로직 확장 가능
+  registerChart('revStackChart', new Chart(document.getElementById('revStackChart'), {
+    type:'bar',
+    data:{
+      labels:['10월','11월','12월','1월','2월','3월'],
+      datasets:[
+        { label:'보톡스', data:[280,310,330,290,310,320], backgroundColor:'#2563EB', borderRadius:4, stack:'s' },
+        { label:'필러',   data:[210,230,260,220,230,245], backgroundColor:'#60A5FA', stack:'s' },
+        { label:'리프팅', data:[190,200,220,185,195,215], backgroundColor:'#93C5FD', stack:'s' },
+        { label:'기타',   data:[140,110,110,75,35,62],    backgroundColor:'#BFDBFE', stack:'s' }
+      ]
+    },
+    options:{ responsive:true, plugins:{legend:{position:'bottom',labels:{padding:12,boxWidth:10,boxHeight:10}}}, scales:{ x:{grid:{display:false},stacked:true}, y:{grid:{color:GRID},stacked:true,ticks:{callback:v=>v+'만'}} } }
+  }));
+
+  registerChart('revTimeChart', new Chart(document.getElementById('revTimeChart'), {
+    type:'bar',
+    data:{ labels:['9시','10시','11시','12시','13시','14시','15시','16시','17시','18시','19시'], datasets:[{ label:'예약 건수', data:[8,22,31,18,12,28,35,29,21,14,6], backgroundColor:ACCENT, borderRadius:4, borderSkipped:false }] },
+    options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:GRID},ticks:{callback:v=>v+'건'}} } }
+  }));
 }
+
+// ── PATIENTS ─────────────────────────────────────────────────────
+function initPatients() {
+  registerChart('patAgeChart', new Chart(document.getElementById('patAgeChart'), {
+    type:'bar',
+    data:{ labels:['10대','20대','30대','40대','50대','60대+'], datasets:[{ label:'환자 수', data:[18,224,424,349,175,57], backgroundColor:['#BFDBFE','#93C5FD','#2563EB','#60A5FA','#93C5FD','#BFDBFE'], borderRadius:6, borderSkipped:false }] },
+    options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:GRID},ticks:{callback:v=>v+'명'}} } }
+  }));
+
+  registerChart('patGenderChart', new Chart(document.getElementById('patGenderChart'), {
+    type:'doughnut',
+    data:{ labels:['여성','남성'], datasets:[{ data:[94,6], backgroundColor:['#2563EB','#E0EAFF'], borderWidth:0, hoverOffset:4 }] },
+    options:{ cutout:'68%', plugins:{ legend:{ position:'bottom', labels:{padding:14,boxWidth:10,boxHeight:10} } } }
+  }));
+
+  registerChart('patTrendChart', new Chart(document.getElementById('patTrendChart'), {
+    type:'bar',
+    data:{ labels:['10월','11월','12월','1월','2월','3월'], datasets:[{ label:'신규 등록', data:[48,52,58,54,56,61], backgroundColor:ACCENT, borderRadius:6, borderSkipped:false }] },
+    options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:GRID},min:40,ticks:{callback:v=>v+'명'}} } }
+  }));
+}
+
+// ── COMPETITORS ───────────────────────────────────────────────────
+function initCompetitors() {
+  registerChart('compRatingChart', new Chart(document.getElementById('compRatingChart'), {
+    type:'line',
+    data:{
+      labels:['10월','11월','12월','1월','2월','3월'],
+      datasets:[
+        { label:'우리 병원', data:[4.5,4.6,4.7,4.7,4.7,4.8], borderColor:ACCENT, backgroundColor:'rgba(37,99,235,0.07)', fill:true, tension:0.4, pointBackgroundColor:ACCENT, pointRadius:4, borderWidth:2.5 },
+        { label:'경쟁사 A',  data:[4.3,4.3,4.4,4.2,4.3,4.4], borderColor:'#F59E0B', backgroundColor:'transparent', fill:false, tension:0.4, pointBackgroundColor:'#F59E0B', pointRadius:3, borderWidth:2, borderDash:[4,4] },
+        { label:'경쟁사 B',  data:[4.1,4.0,4.1,4.0,4.1,4.1], borderColor:'#D1D5DB', backgroundColor:'transparent', fill:false, tension:0.4, pointBackgroundColor:'#D1D5DB', pointRadius:3, borderWidth:1.5, borderDash:[4,4] }
+      ]
+    },
+    options:{ responsive:true, plugins:{ legend:{ position:'bottom', labels:{padding:14,boxWidth:20,boxHeight:2} } }, scales:{ x:{grid:{display:false}}, y:{grid:{color:GRID},min:3.8,max:5.0,ticks:{callback:v=>v+'점'}} } }
+  }));
+}
+
+// ── MARKETING ─────────────────────────────────────────────────────
+function initMarketing() {
+  registerChart('mkBarChart', new Chart(document.getElementById('mkBarChart'), {
+    type:'bar',
+    data:{ labels:['인스타그램','네이버','카카오','지인소개','기타'], datasets:[{ label:'신규 환자', data:[26,19,8,8,5], backgroundColor:ACCENT, borderRadius:6, borderSkipped:false }] },
+    options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:GRID},ticks:{callback:v=>v+'명'}} } }
+  }));
+
+  registerChart('mkTrendChart', new Chart(document.getElementById('mkTrendChart'), {
+    type:'line',
+    data:{
+      labels:['10월','11월','12월','1월','2월','3월'],
+      datasets:[
+        { label:'인스타그램', data:[18,20,22,21,24,26], borderColor:ACCENT, backgroundColor:'transparent', fill:false, tension:0.4, pointBackgroundColor:ACCENT, pointRadius:3, borderWidth:2 },
+        { label:'네이버',     data:[22,21,18,17,18,19], borderColor:'#F59E0B', backgroundColor:'transparent', fill:false, tension:0.4, pointBackgroundColor:'#F59E0B', pointRadius:3, borderWidth:2 },
+        { label:'카카오',     data:[10,11,10,9,8,8],    borderColor:'#D1D5DB', backgroundColor:'transparent', fill:false, tension:0.4, pointBackgroundColor:'#D1D5DB', pointRadius:3, borderWidth:1.5 }
+      ]
+    },
+    options:{ responsive:true, plugins:{ legend:{ position:'bottom', labels:{padding:14,boxWidth:20,boxHeight:2} } }, scales:{ x:{grid:{display:false}}, y:{grid:{color:GRID},ticks:{callback:v=>v+'명'}} } }
+  }));
+}
+
+// ── INPUT ──────────────────────────────────────────────────────────
+let records = JSON.parse(localStorage.getItem('db_records')||'[]');
+function saveRecord() {
+  const proc = document.getElementById('inp-proc').value;
+  const price = parseInt(document.getElementById('inp-price').value)||0;
+  const channel = document.getElementById('inp-channel').value;
+  if (!proc||!price||!channel) { alert('시술명, 금액, 채널을 입력해주세요.'); return; }
+  const type = document.querySelector('input[name="inp-type"]:checked').value;
+  const record = { id: Date.now(), date: document.getElementById('inp-date').value, proc, price, channel, type, memo: document.getElementById('inp-memo').value };
+  records.unshift(record);
+  localStorage.setItem('db_records', JSON.stringify(records));
+  document.getElementById('inp-proc').value='';
+  document.getElementById('inp-price').value='';
+  document.getElementById('inp-channel').value='';
+  document.getElementById('inp-memo').value='';
+  renderRecords();
+}
+function deleteRecord(id) {
+  records = records.filter(r=>r.id!==id);
+  localStorage.setItem('db_records', JSON.stringify(records));
+  renderRecords();
+}
+function renderRecords() {
+  const today = document.getElementById('inp-date').value;
+  const todayRec = records.filter(r=>r.date===today);
+  const empty = document.getElementById('inp-records-empty');
+  const wrap = document.getElementById('inp-records-wrap');
+  const totalRow = document.getElementById('inp-total-row');
+  document.getElementById('inp-count-badge').textContent = todayRec.length+'건';
+  if (todayRec.length===0) { empty.style.display='flex'; wrap.style.display='none'; totalRow.style.display='none'; return; }
+  empty.style.display='none'; wrap.style.display='block'; totalRow.style.display='block';
+  const total = todayRec.reduce((s,r)=>s+r.price,0);
+  document.getElementById('inp-total').textContent = total.toLocaleString()+'원';
+  document.getElementById('inp-records-body').innerHTML = todayRec.map(r=>`
+    <tr>
+      <td class="font-medium">${r.proc}</td>
+      <td><span class="${r.type==='신규'?'badge-info':'badge-up'}" style="font-size:12px;">${r.type}</span></td>
+      <td class="text-[13px]" style="color:var(--neutral-600);">${r.channel}</td>
+      <td class="num font-semibold">${r.price.toLocaleString()}원</td>
+      <td><button onclick="deleteRecord(${r.id})" style="background:none;border:none;cursor:pointer;color:var(--error);font-size:12px;padding:4px 8px;border-radius:6px;min-height:32px;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='none'">삭제</button></td>
+    </tr>`).join('');
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+initView('dashboard');
+renderRecords();
 </script>
 </body>
 </html>
