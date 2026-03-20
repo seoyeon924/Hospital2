@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Databridge — 병원 데이터 분석 플랫폼</title>
+  <meta name="description" content="피부과·성형외과 원장님 전용 매출·시술 데이터 분석. 오늘 3건만 입력하면 이번 주 흐름이 바로 보입니다." />
+  <meta property="og:title" content="Databridge — 원장님 시간은 진료에만 쓰세요" />
+  <meta property="og:description" content="매출, 시술, 환자 데이터를 자동으로 분석합니다. 127개 클리닉 사용 중." />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif; }
+    :root {
+      --primary: #0F1117;
+      --accent: #2563EB;
+      --accent-light: #EFF6FF;
+      --neutral-50: #F8F9FC;
+      --neutral-100: #EDF1F7;
+      --neutral-200: #D1D5DB;
+      --neutral-400: #8B95A1;
+      --neutral-600: #6B7280;
+      --neutral-700: #2E3B55;
+      --success: #16A34A;
+      --warning: #F59E0B;
+      --error: #EF4444;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: #fff; color: var(--primary); }
+
+    /* Nav */
+    .nav-link { padding: 12px 16px; transition: color 150ms ease; font-size: 15px; font-weight: 500; color: var(--neutral-700); }
+    .nav-link:hover { color: var(--accent); }
+
+    /* Buttons */
+    .btn-primary { background: var(--accent); color: #fff; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 15px; transition: opacity 150ms ease, transform 150ms ease; min-height: 44px; display: inline-flex; align-items: center; }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-ghost { background: transparent; color: var(--primary); padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 15px; border: 1.5px solid var(--neutral-200); transition: border-color 150ms, color 150ms; min-height: 44px; display: inline-flex; align-items: center; }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Cards */
+    .card { background: #fff; border: 1px solid var(--neutral-100); border-radius: 16px; padding: 24px; }
+    .card-sm { background: #fff; border: 1px solid var(--neutral-100); border-radius: 12px; padding: 20px; }
+
+    /* Section spacing */
+    .section { padding: 96px 0; }
+    .section-sm { padding: 64px 0; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* Grid background */
+    .hero-bg {
+      background-color: #fff;
+      background-image: linear-gradient(var(--neutral-100) 1px, transparent 1px), linear-gradient(90deg, var(--neutral-100) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Feature tabs */
+    .feature-tab { padding: 10px 20px; border-radius: 8px; font-weight: 500; font-size: 14px; color: var(--neutral-600); transition: all 150ms; cursor: pointer; border: none; background: none; min-height: 44px; }
+    .feature-tab.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+    .feature-tab:hover:not(.active) { background: var(--neutral-50); color: var(--primary); }
+
+    /* Feature panel */
+    .feature-panel { display: none; }
+    .feature-panel.active { display: grid; }
+
+    /* FAQ accordion */
+    .faq-item summary { list-style: none; cursor: pointer; padding: 20px 0; font-weight: 600; font-size: 16px; display: flex; justify-content: space-between; align-items: center; min-height: 44px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item[open] summary .faq-icon { transform: rotate(45deg); }
+    .faq-icon { transition: transform 200ms ease; flex-shrink: 0; margin-left: 16px; }
+    .faq-answer { padding-bottom: 20px; color: var(--neutral-600); line-height: 1.7; font-size: 15px; }
+
+    /* Pricing */
+    .plan-card { border-radius: 16px; padding: 32px; border: 1.5px solid var(--neutral-200); transition: border-color 200ms; }
+    .plan-card:hover { border-color: var(--accent); }
+    .plan-card.featured { border-color: var(--accent); background: var(--accent-light); }
+    .plan-feature { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--neutral-700); padding: 6px 0; }
+
+    /* Number tabular */
+    .num { font-variant-numeric: tabular-nums; }
+
+    /* Animations */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-up { animation: fadeUp 0.5s ease both; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .section { padding: 64px 0; }
+      .hero-h1 { font-size: 40px !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<header class="sticky top-0 z-50 bg-white/90 border-b border-neutral-100" style="backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+  <div class="container">
+    <nav class="flex items-center justify-between h-[64px]">
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-2 font-bold text-[18px]" style="color: var(--primary);">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect width="28" height="28" rx="7" fill="#2563EB"/>
+          <rect x="7" y="7" width="6" height="6" rx="1.5" fill="white"/>
+          <rect x="15" y="7" width="6" height="6" rx="1.5" fill="white" opacity="0.6"/>
+          <rect x="7" y="15" width="6" height="6" rx="1.5" fill="white" opacity="0.6"/>
+          <rect x="15" y="15" width="6" height="6" rx="1.5" fill="white"/>
+        </svg>
+        Databridge
+      </a>
+      <!-- Links -->
+      <div class="hidden md:flex items-center">
+        <a href="#features" class="nav-link">기능</a>
+        <a href="#pricing" class="nav-link">요금제</a>
+        <a href="#faq" class="nav-link">자주 묻는 질문</a>
+        <a href="demo.html" class="nav-link">데모 보기</a>
+      </div>
+      <!-- CTA -->
+      <div class="flex items-center gap-3">
+        <a href="demo.html" class="btn-ghost hidden md:inline-flex">로그인</a>
+        <a href="demo.html" class="btn-primary">무료로 시작하기</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- ── Hero ── -->
+<section class="hero-bg section" style="padding-bottom: 0;">
+  <div class="container">
+    <div class="max-w-[680px] mx-auto text-center" style="padding-bottom: 64px;">
+      <!-- Badge -->
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-semibold mb-8 fade-up" style="background: var(--accent-light); color: var(--accent);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        피부과·성형외과 전용 데이터 플랫폼
+      </div>
+      <!-- Headline -->
+      <h1 class="hero-h1 font-black leading-[1.1] tracking-tight mb-6 fade-up delay-1" style="font-size: 60px; color: var(--primary);">
+        원장님 시간은<br>진료에만 쓰세요
+      </h1>
+      <!-- Sub -->
+      <p class="text-[18px] leading-[1.7] mb-8 fade-up delay-2" style="color: var(--neutral-600); max-width: 520px; margin-left: auto; margin-right: auto;">
+        매출, 시술, 환자 데이터를 자동으로 분석합니다.<br>오늘 3건만 입력하면 이번 주 흐름이 바로 보입니다.
+      </p>
+      <!-- CTAs -->
+      <div class="flex items-center justify-center gap-4 mb-8 fade-up delay-3">
+        <a href="demo.html" class="btn-primary" style="font-size: 16px; padding: 14px 28px;">무료로 시작하기</a>
+        <a href="demo.html" class="btn-ghost" style="font-size: 16px; padding: 14px 28px;">데모 보기</a>
+      </div>
+      <!-- Social proof -->
+      <div class="flex items-center justify-center gap-2 text-[14px] fade-up delay-3" style="color: var(--neutral-400);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        현재 <strong style="color: var(--primary);">127개 클리닉</strong>이 사용 중 · 신용카드 없이 시작 가능
+      </div>
+    </div>
+
+    <!-- Dashboard preview -->
+    <div class="mx-auto" style="max-width: 1000px;">
+      <div class="rounded-2xl border p-3" style="background: rgba(255,255,255,0.8); border-color: var(--neutral-200); backdrop-filter: blur(8px); box-shadow: 0 4px 40px rgba(0,0,0,0.06);">
+        <div class="rounded-xl overflow-hidden border" style="border-color: var(--neutral-100);">
+          <!-- Mini dashboard preview -->
+          <div class="flex" style="background: var(--neutral-50); min-height: 320px;">
+            <!-- Sidebar -->
+            <div class="hidden md:flex flex-col p-4 gap-1 border-r" style="width: 180px; border-color: var(--neutral-100); background: white;">
+              <div class="flex items-center gap-2 mb-4 px-2 py-1">
+                <div class="w-6 h-6 rounded" style="background: var(--accent);"></div>
+                <span class="text-[13px] font-bold">Databridge</span>
+              </div>
+              <div class="flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] font-semibold" style="background: var(--accent-light); color: var(--accent);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                대시보드
+              </div>
+              <div class="flex items-center gap-2 px-3 py-2 rounded-lg text-[13px]" style="color: var(--neutral-600);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                시술 입력
+              </div>
+              <div class="flex items-center gap-2 px-3 py-2 rounded-lg text-[13px]" style="color: var(--neutral-600);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                매출 분석
+              </div>
+              <div class="flex items-center gap-2 px-3 py-2 rounded-lg text-[13px]" style="color: var(--neutral-600);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                환자 분석
+              </div>
+            </div>
+            <!-- Main content preview -->
+            <div class="flex-1 p-5">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <p class="text-[12px]" style="color: var(--neutral-400);">2026년 3월 20일 목요일</p>
+                  <h3 class="text-[16px] font-bold">안녕하세요, 원장님 👋</h3>
+                </div>
+                <div class="text-[12px] px-3 py-1.5 rounded-lg font-medium" style="background: #F0FDF4; color: var(--success);">전주 대비 +12%</div>
+              </div>
+              <!-- KPI row -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                <div class="card-sm">
+                  <p class="text-[11px] mb-1" style="color: var(--neutral-400);">이번 주 매출</p>
+                  <p class="text-[20px] font-black num">20.6M</p>
+                  <p class="text-[11px] mt-1" style="color: var(--success);">↑ 12%</p>
+                </div>
+                <div class="card-sm">
+                  <p class="text-[11px] mb-1" style="color: var(--neutral-400);">시술 건수</p>
+                  <p class="text-[20px] font-black num">47건</p>
+                  <p class="text-[11px] mt-1" style="color: var(--success);">↑ 8%</p>
+                </div>
+                <div class="card-sm hidden md:block">
+                  <p class="text-[11px] mb-1" style="color: var(--neutral-400);">재방문율</p>
+                  <p class="text-[20px] font-black num">68%</p>
+                  <p class="text-[11px] mt-1" style="color: var(--success);">↑ 3%p</p>
+                </div>
+                <div class="card-sm hidden md:block">
+                  <p class="text-[11px] mb-1" style="color: var(--neutral-400);">신규 환자</p>
+                  <p class="text-[20px] font-black num">15명</p>
+                  <p class="text-[11px] mt-1" style="color: var(--neutral-400);">이번 주</p>
+                </div>
+              </div>
+              <!-- Mini chart placeholder -->
+              <div class="card-sm" style="height: 100px; display: flex; align-items: center; justify-content: center;">
+                <canvas id="heroChart" style="max-height: 80px;"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── KPI Stats ── -->
+<section class="section-sm" style="background: var(--neutral-50); border-top: 1px solid var(--neutral-100); border-bottom: 1px solid var(--neutral-100);">
+  <div class="container">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <div>
+        <p class="num font-black mb-1" style="font-size: 48px; color: var(--primary);">127<span style="font-size: 24px;">개</span></p>
+        <p class="text-[14px]" style="color: var(--neutral-600);">현재 사용 중인 클리닉</p>
+      </div>
+      <div>
+        <p class="num font-black mb-1" style="font-size: 48px; color: var(--primary);">2.3<span style="font-size: 24px;">시간</span></p>
+        <p class="text-[14px]" style="color: var(--neutral-600);">주당 평균 절감 시간</p>
+      </div>
+      <div>
+        <p class="num font-black mb-1" style="font-size: 48px; color: var(--primary);">4주</p>
+        <p class="text-[14px]" style="color: var(--neutral-600);">평균 도입 기간</p>
+      </div>
+      <div>
+        <p class="num font-black mb-1" style="font-size: 48px; color: var(--primary);">4.8<span style="font-size: 24px;">/5</span></p>
+        <p class="text-[14px]" style="color: var(--neutral-600);">원장님 만족도</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ── -->
+<section id="features" class="section">
+  <div class="container">
+    <div class="text-center mb-12">
+      <p class="text-[14px] font-semibold mb-3" style="color: var(--accent);">핵심 기능</p>
+      <h2 class="font-black tracking-tight mb-4" style="font-size: 40px;">원장님이 필요한 것,<br>전부 담았어요</h2>
+      <p class="text-[17px]" style="color: var(--neutral-600); max-width: 500px; margin: 0 auto;">복잡한 분석 없이, 필요한 숫자가 딱 보입니다</p>
+    </div>
+
+    <!-- Feature tabs -->
+    <div class="flex flex-wrap justify-center gap-2 mb-10">
+      <button class="feature-tab active" onclick="switchTab(this, 'tab-revenue')">시술 매출 분석</button>
+      <button class="feature-tab" onclick="switchTab(this, 'tab-patient')">환자 재방문율</button>
+      <button class="feature-tab" onclick="switchTab(this, 'tab-competitor')">경쟁사 모니터링</button>
+      <button class="feature-tab" onclick="switchTab(this, 'tab-marketing')">마케팅 채널 분석</button>
+    </div>
+
+    <!-- Tab panels -->
+    <div id="tab-revenue" class="feature-panel active grid md:grid-cols-2 gap-12 items-center">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-[13px] font-semibold mb-6" style="background: var(--accent-light); color: var(--accent);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          매출 분석
+        </div>
+        <h3 class="font-black mb-4" style="font-size: 28px;">시술별 수익을 한눈에</h3>
+        <p class="mb-6 leading-[1.7]" style="color: var(--neutral-600);">어떤 시술이 가장 수익성이 높은지, 이번 달 매출이 저번 달 대비 어떤지 자동으로 분석해드립니다.</p>
+        <ul class="space-y-3">
+          <li class="plan-feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>시술별 매출·수익률 자동 집계</li>
+          <li class="plan-feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>전주/전월 대비 증감률 표시</li>
+          <li class="plan-feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>월간 자동 이메일 리포트</li>
+        </ul>
+      </div>
+      <div class="card" style="padding: 28px;">
+        <p class="text-[13px] font-semibold mb-4" style="color: var(--neutral-600);">이번 달 시술별 매출</p>
+        <canvas id="revenueChart" style="max-height: 220px;"></canvas>
+      </div>
+    </div>
+
+    <div id="tab-patient" class="feature-panel grid md:grid-cols-2 gap-12 items-center">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-[13px] font-semibold mb-6" style="background: #F0FDF4; color: var(--success);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          환자 분석
+        </div>
+        <h3 class="font-black mb-4" style="font-size: 28px;">재방문율로 충성 고객 파악</h3>
+        <p class="mb-6 leading-[1.7]" style="color: var(--neutral-600);">어떤 시술을 받은 환자가 다시 오는지, 재방문 주기는 어떤지 데이터로 확인합니다.</p>
+        <ul class="space-y-3">
+          <li class="plan-feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>환자별 방문 이력 자동 추적</li>
+          <li class="plan-feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>재방문율 목표 설정 및 알림</li>
+          <li class="plan-feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>시술별 재방문 전환율</li>
+        </ul>
+      </div>
+      <div class="card" style="padding: 28px;">
+        <p class="text-[13px] font-semibold mb-4" style="color: var(--neutral-600);">재방문율 추이</p>
+        <canvas id="patientChart" style="max-height: 220px;"></canvas>
+      </div>
+    </div>
+
+    <div id="tab-competitor" class="feature-panel grid md:grid-cols-2 gap-12 items-center">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-[13px] font-semibold mb-6" style="background: #FFF7ED; color: #D97706;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          경쟁사 모니터링
+        </div>
+        <h3 class="font-black mb-4" style="font-size: 28px;">경쟁 병원 리뷰를 자동 추적</h3>
+        <p class="mb-6 leading-[1.7]" style="color: var(--neutral-600);">주변 경쟁 병원의 네이버·카카오 리뷰 증감을 자동으로 모니터링합니다. 원장님이 직접 찾아보지 않아도 됩니다.</p>
+        <ul class="space-y-3">
+          <li class="plan-feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>네이버·카카오 리뷰 자동 수집</li>
+          <li class="plan-feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>경쟁사 대비 내 순위 확인</li>
+          <li class="plan-feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>리뷰 급증 시 즉시 알림</li>
+        </ul>
+      </div>
+      <div class="card" style="padding: 28px;">
+        <p class="text-[13px] font-semibold mb-4" style="color: var(--neutral-600);">이번 달 리뷰 증가 현황</p>
+        <div class="space-y-3">
+          <div>
+            <div class="flex justify-between text-[13px] mb-1.5">
+              <span class="font-medium">우리 클리닉</span>
+              <span class="font-bold num" style="color: var(--accent);">+24건</span>
+            </div>
+            <div class="h-2 rounded-full" style="background: var(--neutral-100);">
+              <div class="h-2 rounded-full" style="background: var(--accent); width: 75%;"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-[13px] mb-1.5">
+              <span class="font-medium">A 피부과</span>
+              <span class="font-semibold num" style="color: var(--neutral-600);">+31건</span>
+            </div>
+            <div class="h-2 rounded-full" style="background: var(--neutral-100);">
+              <div class="h-2 rounded-full" style="background: var(--neutral-400); width: 96%;"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-[13px] mb-1.5">
+              <span class="font-medium">B 성형외과</span>
+              <span class="font-semibold num" style="color: var(--neutral-600);">+12건</span>
+            </div>
+            <div class="h-2 rounded-full" style="background: var(--neutral-100);">
+              <div class="h-2 rounded-full" style="background: var(--neutral-200); width: 38%;"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-[13px] mb-1.5">
+              <span class="font-medium">C 피부과</span>
+              <span class="font-semibold num" style="color: var(--neutral-600);">+8건</span>
+            </div>
+            <div class="h-2 rounded-full" style="background: var(--neutral-100);">
+              <div class="h-2 rounded-full" style="background: var(--neutral-200); width: 25%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-marketing" class="feature-panel grid md:grid-cols-2 gap-12 items-center">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-[13px] font-semibold mb-6" style="background: #FDF4FF; color: #9333EA;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          마케팅 분석
+        </div>
+        <h3 class="font-black mb-4" style="font-size: 28px;">광고 효과를 숫자로 확인</h3>
+        <p class="mb-6 leading-[1.7]" style="color: var(--neutral-600);">인스타그램, 네이버, 카카오 각 채널에서 얼마나 환자가 오는지 분석해 예산을 최적화합니다.</p>
+        <ul class="space-y-3">
+          <li class="plan-feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>채널별 유입 환자 수 분석</li>
+          <li class="plan-feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>채널별 예상 광고비 대비 효율</li>
+          <li class="plan-feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>월간 채널 성과 리포트</li>
+        </ul>
+      </div>
+      <div class="card" style="padding: 28px;">
+        <p class="text-[13px] font-semibold mb-4" style="color: var(--neutral-600);">채널별 유입 현황</p>
+        <canvas id="marketingChart" style="max-height: 220px;"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Fit For ── -->
+<section class="section" style="background: var(--neutral-50);">
+  <div class="container">
+    <div class="text-center mb-12">
+      <h2 class="font-black tracking-tight mb-4" style="font-size: 36px;">이런 원장님께 딱 맞습니다</h2>
+      <p style="color: var(--neutral-600);">Databridge는 이 고민을 가진 클리닉을 위해 만들었습니다</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-[800px] mx-auto">
+      <div class="card flex items-start gap-4">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: var(--accent-light);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <div>
+          <p class="font-semibold mb-1">엑셀로 매출 관리 중인데 분석이 어렵다</p>
+          <p class="text-[14px]" style="color: var(--neutral-600);">수식 없이 입력만 하면 분석이 자동으로 됩니다</p>
+        </div>
+      </div>
+      <div class="card flex items-start gap-4">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: #FFF7ED;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <div>
+          <p class="font-semibold mb-1">경쟁 병원 리뷰가 얼마나 늘어나는지 궁금하다</p>
+          <p class="text-[14px]" style="color: var(--neutral-600);">주변 병원 리뷰를 매일 자동으로 모니터링합니다</p>
+        </div>
+      </div>
+      <div class="card flex items-start gap-4">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: #F0FDF4;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <div>
+          <p class="font-semibold mb-1">인스타 광고를 하는데 효과를 모르겠다</p>
+          <p class="text-[14px]" style="color: var(--neutral-600);">채널별 환자 유입을 숫자로 확인하세요</p>
+        </div>
+      </div>
+      <div class="card flex items-start gap-4">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: #FDF4FF;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9333EA" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+        </div>
+        <div>
+          <p class="font-semibold mb-1">재방문 환자 비율을 높이고 싶다</p>
+          <p class="text-[14px]" style="color: var(--neutral-600);">재방문율과 이탈 시점을 분석해 알려드립니다</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Pricing ── -->
+<section id="pricing" class="section">
+  <div class="container">
+    <div class="text-center mb-12">
+      <h2 class="font-black tracking-tight mb-4" style="font-size: 36px;">간단하고 투명한 요금제</h2>
+      <p style="color: var(--neutral-600);">숨겨진 비용 없이, 클리닉 규모에 맞게 선택하세요</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-[900px] mx-auto">
+      <!-- Starter -->
+      <div class="plan-card">
+        <p class="text-[13px] font-semibold mb-2" style="color: var(--neutral-600);">스타터</p>
+        <p class="font-black mb-1" style="font-size: 32px;">무료</p>
+        <p class="text-[14px] mb-6" style="color: var(--neutral-400);">처음 3개월</p>
+        <a href="demo.html" class="btn-ghost w-full justify-center mb-6" style="width: 100%;">무료로 시작하기</a>
+        <div class="space-y-2">
+          <div class="plan-feature"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>기본 매출 분석</div>
+          <div class="plan-feature"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>월간 리포트 1회</div>
+          <div class="plan-feature"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>시술 입력 100건/월</div>
+          <div class="plan-feature" style="color: var(--neutral-400);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>경쟁사 모니터링</div>
+          <div class="plan-feature" style="color: var(--neutral-400);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>마케팅 채널 분석</div>
+        </div>
+      </div>
+      <!-- Pro -->
+      <div class="plan-card featured" style="position: relative;">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[12px] font-bold" style="background: var(--accent); color: white;">추천</div>
+        <p class="text-[13px] font-semibold mb-2" style="color: var(--accent);">프로</p>
+        <p class="font-black mb-1" style="font-size: 32px;">49,000<span style="font-size: 16px; font-weight: 500;">원</span></p>
+        <p class="text-[14px] mb-6" style="color: var(--neutral-600);">월</p>
+        <a href="demo.html" class="btn-primary w-full justify-center mb-6" style="width: 100%;">지금 시작하기</a>
+        <div class="space-y-2">
+          <div class="plan-feature"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>스타터 플랜 전체 포함</div>
+          <div class="plan-feature"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>무제한 시술 입력</div>
+          <div class="plan-feature"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>경쟁사 모니터링 5곳</div>
+          <div class="plan-feature"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>마케팅 채널 분석</div>
+          <div class="plan-feature"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>월간 자동 이메일 리포트</div>
+        </div>
+      </div>
+      <!-- Enterprise -->
+      <div class="plan-card">
+        <p class="text-[13px] font-semibold mb-2" style="color: var(--neutral-600);">엔터프라이즈</p>
+        <p class="font-black mb-1" style="font-size: 32px;">문의</p>
+        <p class="text-[14px] mb-6" style="color: var(--neutral-400);">복수 지점 / 그룹</p>
+        <a href="mailto:hello@databridge.co.kr" class="btn-ghost w-full justify-center mb-6" style="width: 100%;">문의하기</a>
+        <div class="space-y-2">
+          <div class="plan-feature"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>프로 플랜 전체 포함</div>
+          <div class="plan-feature"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>복수 지점 통합 관리</div>
+          <div class="plan-feature"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>전담 온보딩 매니저</div>
+          <div class="plan-feature"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>맞춤 데이터 연동</div>
+          <div class="plan-feature"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>SLA 보장</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section id="faq" class="section" style="background: var(--neutral-50);">
+  <div class="container max-w-[700px]">
+    <div class="text-center mb-12">
+      <h2 class="font-black tracking-tight" style="font-size: 36px;">자주 묻는 질문</h2>
+    </div>
+    <div class="space-y-0">
+      <details class="faq-item border-b" style="border-color: var(--neutral-200);">
+        <summary>데이터를 직접 입력해야 하나요?
+          <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </summary>
+        <p class="faq-answer">네, 현재는 시술 기록을 직접 입력하는 방식입니다. 입력 후에는 분석이 자동으로 진행됩니다. 향후 EMR 연동을 통해 자동 입력 기능을 제공할 예정입니다.</p>
+      </details>
+      <details class="faq-item border-b" style="border-color: var(--neutral-200);">
+        <summary>환자 개인정보가 외부에 노출되지 않나요?
+          <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </summary>
+        <p class="faq-answer">Databridge는 국내 서버를 사용하며, 환자 개인 식별 정보는 저장하지 않습니다. 모든 데이터는 암호화되어 안전하게 보관됩니다.</p>
+      </details>
+      <details class="faq-item border-b" style="border-color: var(--neutral-200);">
+        <summary>컴퓨터를 잘 못해도 사용할 수 있나요?
+          <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </summary>
+        <p class="faq-answer">네, 복잡한 설정이나 분석 없이 바로 사용할 수 있도록 설계했습니다. 처음 사용하시는 분들을 위한 30분 온라인 온보딩을 무료로 제공합니다.</p>
+      </details>
+      <details class="faq-item border-b" style="border-color: var(--neutral-200);">
+        <summary>무료 기간 이후 자동으로 요금이 청구되나요?
+          <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </summary>
+        <p class="faq-answer">아니요. 3개월 무료 체험은 신용카드 없이 시작할 수 있으며, 만료 이후에는 원장님이 직접 플랜을 선택하셔야 합니다. 자동 청구는 없습니다.</p>
+      </details>
+      <details class="faq-item border-b" style="border-color: var(--neutral-200);">
+        <summary>복수 지점을 운영하는 경우 어떻게 하나요?
+          <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </summary>
+        <p class="faq-answer">2개 이상 지점을 운영하시는 경우 엔터프라이즈 플랜을 문의해주세요. 지점별 분석 및 통합 대시보드를 제공합니다.</p>
+      </details>
+      <details class="faq-item" style="border-color: var(--neutral-200);">
+        <summary>언제든지 해지할 수 있나요?
+          <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </summary>
+        <p class="faq-answer">네, 언제든지 해지하실 수 있습니다. 해지 후에도 해당 월 말까지는 서비스를 이용하실 수 있습니다.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="section">
+  <div class="container">
+    <div class="rounded-2xl text-center p-16 mx-auto max-w-[780px]" style="background: var(--primary);">
+      <p class="text-[13px] font-semibold mb-4" style="color: rgba(255,255,255,0.5);">지금 바로 시작하세요</p>
+      <h2 class="font-black tracking-tight mb-4 text-white" style="font-size: 36px;">오늘 시술 3건만 입력하면<br>이번 주 매출 흐름이 바로 보여요</h2>
+      <p class="mb-8" style="color: rgba(255,255,255,0.6); font-size: 16px;">127개 클리닉이 이미 사용 중입니다. 신용카드 없이 3개월 무료.</p>
+      <div class="flex items-center justify-center gap-4">
+        <a href="demo.html" class="btn-primary" style="background: white; color: var(--primary); font-size: 16px; padding: 14px 28px;">무료로 시작하기</a>
+        <a href="demo.html" class="btn-ghost" style="border-color: rgba(255,255,255,0.3); color: white; font-size: 16px; padding: 14px 28px;">데모 보기</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer class="border-t" style="border-color: var(--neutral-100); padding: 48px 0;">
+  <div class="container">
+    <div class="flex flex-col md:flex-row justify-between items-start gap-8">
+      <div>
+        <div class="flex items-center gap-2 font-bold text-[16px] mb-2">
+          <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="7" fill="#2563EB"/><rect x="7" y="7" width="6" height="6" rx="1.5" fill="white"/><rect x="15" y="7" width="6" height="6" rx="1.5" fill="white" opacity="0.6"/><rect x="7" y="15" width="6" height="6" rx="1.5" fill="white" opacity="0.6"/><rect x="15" y="15" width="6" height="6" rx="1.5" fill="white"/></svg>
+          Databridge
+        </div>
+        <p class="text-[13px]" style="color: var(--neutral-400);">피부과·성형외과 전용 데이터 분석 플랫폼</p>
+      </div>
+      <div class="flex flex-wrap gap-x-8 gap-y-2">
+        <a href="#" class="text-[13px] nav-link" style="padding: 8px 0;">이용약관</a>
+        <a href="#" class="text-[13px] nav-link" style="padding: 8px 0;">개인정보처리방침</a>
+        <a href="mailto:hello@databridge.co.kr" class="text-[13px] nav-link" style="padding: 8px 0;">문의</a>
+      </div>
+    </div>
+    <div class="mt-8 pt-6 border-t text-[13px]" style="border-color: var(--neutral-100); color: var(--neutral-400);">
+      © 2026 Databridge. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── Hero mini chart ──
+(function() {
+  const ctx = document.getElementById('heroChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['월','화','수','목','금','토','일'],
+      datasets: [{
+        data: [2.1, 1.8, 3.2, 2.7, 4.1, 5.3, 1.2],
+        borderColor: '#2563EB',
+        backgroundColor: 'rgba(37,99,235,0.08)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: {
+        x: { display: false },
+        y: { display: false }
+      },
+      animation: false
+    }
+  });
+})();
+
+// ── Revenue donut ──
+(function() {
+  const ctx = document.getElementById('revenueChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['보톡스', '필러', '리프팅', '스킨케어', '기타'],
+      datasets: [{
+        data: [35, 28, 22, 10, 5],
+        backgroundColor: ['#2563EB','#60A5FA','#BFDBFE','#93C5FD','#DBEAFE'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '65%',
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { font: { family: 'Pretendard Variable', size: 12 }, padding: 12, boxWidth: 10, boxHeight: 10 }
+        }
+      }
+    }
+  });
+})();
+
+// ── Patient line ──
+(function() {
+  const ctx = document.getElementById('patientChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['1월','2월','3월','4월','5월','6월'],
+      datasets: [{
+        label: '재방문율',
+        data: [52, 58, 61, 63, 67, 68],
+        borderColor: '#16A34A',
+        backgroundColor: 'rgba(22,163,74,0.08)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#16A34A',
+        pointRadius: 4,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'Pretendard Variable', size: 11 } } },
+        y: { grid: { color: '#F3F4F6' }, ticks: { callback: v => v + '%', font: { family: 'Pretendard Variable', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// ── Marketing bar ──
+(function() {
+  const ctx = document.getElementById('marketingChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['인스타그램', '네이버', '카카오', '기타'],
+      datasets: [{
+        data: [42, 31, 18, 9],
+        backgroundColor: ['#2563EB','#60A5FA','#93C5FD','#BFDBFE'],
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'Pretendard Variable', size: 11 } } },
+        y: { grid: { color: '#F3F4F6' }, ticks: { callback: v => v + '%', font: { family: 'Pretendard Variable', size: 11 } } }
+      }
+    }
+  });
+})();
+
+// ── Feature tab switch ──
+function switchTab(btn, tabId) {
+  document.querySelectorAll('.feature-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.feature-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>
