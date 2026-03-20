@@ -56,6 +56,19 @@
     .period-btn.active { background: var(--accent); color: white; }
     .period-btn:hover:not(.active) { background: var(--neutral-100); }
 
+    /* Retention toggle */
+    .retention-toggle { padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; border: none; background: transparent; cursor: pointer; color: var(--neutral-400); min-height: 36px; transition: all 150ms; white-space: nowrap; }
+    .retention-toggle.active { background: white; color: var(--primary); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .retention-toggle:hover:not(.active) { color: var(--neutral-600); }
+
+    /* Cohort table */
+    .cohort-th { padding: 10px 8px; text-align: center; font-size: 11px; font-weight: 600; color: var(--neutral-400); background: white; white-space: nowrap; border-bottom: 2px solid var(--neutral-100); position: sticky; top: 0; }
+    .cohort-th.left { text-align: left; }
+    .cohort-td-label { padding: 10px 12px; font-size: 13px; color: var(--neutral-700); white-space: nowrap; border-bottom: 1px solid var(--neutral-100); }
+    .cohort-td-count { padding: 10px 12px; font-size: 13px; color: var(--neutral-500, #6B7280); text-align: right; border-bottom: 1px solid var(--neutral-100); font-variant-numeric: tabular-nums; }
+    .cohort-td { padding: 0; text-align: center; border-bottom: 1px solid var(--neutral-100); }
+    .cohort-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 8px 6px; min-width: 52px; height: 48px; }
+
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
       .main { margin-left: 0; padding: 16px; }
@@ -263,6 +276,40 @@
     </div>
   </div>
 
+  <!-- ── Retention Analysis ── -->
+  <div class="card mt-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+      <div>
+        <p class="font-semibold" style="font-size: 15px;">환자 재방문 리텐션</p>
+        <p class="text-[12px] mt-0.5" style="color: var(--neutral-400);">초진 기준 · 초진 후 N일 이내 재방문율</p>
+      </div>
+      <div class="flex items-center gap-3 flex-wrap">
+        <label class="flex items-center gap-1.5 text-[13px] cursor-pointer" style="color: var(--neutral-600);">
+          <input type="checkbox" id="channelCheck" style="accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; border-radius: 4px;">
+          유입 경로별 보기
+        </label>
+        <div class="flex items-center p-0.5 rounded-lg" style="background: var(--neutral-100);">
+          <button class="retention-toggle active" onclick="setRetentionType(this,'new')">신규 환자</button>
+          <button class="retention-toggle" onclick="setRetentionType(this,'all')">전체 환자</button>
+        </div>
+        <button style="display:flex; align-items:center; gap:6px; background:white; border:1px solid var(--neutral-200); color:var(--neutral-600); border-radius:8px; font-size:13px; font-weight:500; min-height:36px; padding:0 12px; cursor:pointer;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          다운로드
+        </button>
+      </div>
+    </div>
+
+    <!-- Area line chart -->
+    <div style="height: 200px; margin-bottom: 28px; position: relative;">
+      <canvas id="retentionLineChart"></canvas>
+    </div>
+
+    <!-- Cohort heatmap table -->
+    <div class="overflow-x-auto" style="margin: 0 -4px;">
+      <table id="cohortTable" style="width: 100%; border-collapse: collapse; min-width: 680px;"></table>
+    </div>
+  </div>
+
 </main>
 
 <script>
@@ -406,6 +453,123 @@ function setPeriod(btn, p) {
   document.getElementById('kpi-count').textContent = d.count;
   document.getElementById('kpi-revisit').textContent = d.revisit;
   document.getElementById('kpi-new').textContent = d.newP;
+}
+
+// ── Retention cohort ──────────────────────────────────────────
+const cohortRows = [
+  { label: '전체',        count: 131, isTotal: true,
+    days:   [100, 5, 4, 4, 2, 2, 5, 3, 6, 5, 2],
+    counts: [131, 7, 5, 5, 3, 3, 7, 4, 8, 7, 3] },
+  { label: '3.10 (화)',   count: 47,
+    days:   [100,11, 6, 9, 4, 4, 9, 6,11, 9, 2],
+    counts: [ 47, 5, 3, 4, 2, 2, 4, 3, 5, 4, 1] },
+  { label: '3.11 (수)',   count: 31,
+    days:   [100, 3, 6, 3, 0, 0, 3, 0, 0, 0, null],
+    counts: [ 31, 1, 2, 1, 0, 0, 1, 0, 0, 0, null] },
+  { label: '3.12 (목)',   count:  5,
+    days:   [100, 0, 0, 0, 0, 0, 0, 0, 0, null, null],
+    counts: [  5, 0, 0, 0, 0, 0, 0, 0, 0, null, null] },
+  { label: '3.13 (금)',   count: 14,
+    days:   [100, 0, 0, 0, 0, 0, 0, 0, null, null, null],
+    counts: [ 14, 0, 0, 0, 0, 0, 0, 0, null, null, null] },
+  { label: '3.14 (토)',   count:  4,
+    days:   [100, 0, 0, 0, 0, 0, 0, null, null, null, null],
+    counts: [  4, 0, 0, 0, 0, 0, 0, null, null, null, null] },
+  { label: '3.15 (일)',   count:  5,
+    days:   [100, 0, 0, 0, 0, 0, null, null, null, null, null],
+    counts: [  5, 0, 0, 0, 0, 0, null, null, null, null, null] },
+  { label: '3.16 (월)',   count:  6,
+    days:   [100, 0, 0, 0, 0, null, null, null, null, null, null],
+    counts: [  6, 0, 0, 0, 0, null, null, null, null, null, null] },
+  { label: '3.17 (화)',   count:  5,
+    days:   [100, 0, 0, 0, null, null, null, null, null, null, null],
+    counts: [  5, 0, 0, 0, null, null, null, null, null, null, null] },
+  { label: '3.18 (수)',   count:  4,
+    days:   [100, 0, 0, null, null, null, null, null, null, null, null],
+    counts: [  4, 0, 0, null, null, null, null, null, null, null, null] },
+];
+
+function getCellStyle(pct) {
+  if (pct === null) return { bg: '#F4F6FA', text: 'transparent', sub: 'transparent' };
+  if (pct === 100)  return { bg: 'transparent', text: 'var(--neutral-700)', sub: 'transparent' };
+  if (pct === 0)    return { bg: 'transparent', text: '#CBD5E1', sub: 'transparent' };
+  // Interpolate accent color: intensity 0→12% maps to 0→1
+  const t = Math.min(pct / 12, 1);
+  const r = Math.round(37  + (219 - 37)  * (1 - t));
+  const g = Math.round(99  + (234 - 99)  * (1 - t));
+  const b = Math.round(235 + (254 - 235) * (1 - t));
+  const textColor = t > 0.55 ? 'white' : '#1E40AF';
+  return { bg: `rgb(${r},${g},${b})`, text: textColor, sub: textColor };
+}
+
+function buildCohortTable() {
+  const t = document.getElementById('cohortTable');
+  const cols = ['초진 날짜', '환자 수', 'DAY 0','DAY 1','DAY 2','DAY 3','DAY 4','DAY 5','DAY 6','DAY 7','DAY 8','DAY 9','DAY 10'];
+  let html = '<thead><tr>';
+  cols.forEach((c, i) => {
+    html += `<th class="cohort-th${i <= 1 ? ' left' : ''}">${c}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  cohortRows.forEach(row => {
+    html += `<tr style="${row.isTotal ? 'background:#FAFAFA;' : ''}">`;
+    html += `<td class="cohort-td-label" style="font-weight:${row.isTotal ? '600' : '400'};">${row.label}</td>`;
+    html += `<td class="cohort-td-count">${row.count}</td>`;
+    row.days.forEach((pct, di) => {
+      const s = getCellStyle(pct);
+      if (pct === null) {
+        html += `<td class="cohort-td"><div class="cohort-cell" style="background:${s.bg};"></div></td>`;
+        return;
+      }
+      const cnt = row.counts[di];
+      html += `<td class="cohort-td">
+        <div class="cohort-cell" style="background:${s.bg};">
+          <span style="font-size:13px; font-weight:${pct > 0 ? '600' : '400'}; color:${s.text}; font-variant-numeric:tabular-nums;">${pct}%</span>
+          ${di > 0 && cnt !== null ? `<span style="font-size:11px; color:${s.sub}; opacity:0.8;">${cnt}</span>` : ''}
+        </div>
+      </td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  t.innerHTML = html;
+}
+buildCohortTable();
+
+// Retention area chart
+new Chart(document.getElementById('retentionLineChart'), {
+  type: 'line',
+  data: {
+    labels: ['DAY 0','DAY 1','DAY 2','DAY 3','DAY 4','DAY 5','DAY 6','DAY 7','DAY 8','DAY 9','DAY 10'],
+    datasets: [{
+      label: '재방문율',
+      data: [100, 5, 4, 4, 2, 2, 5, 3, 6, 5, 2],
+      borderColor: '#2563EB',
+      backgroundColor: 'rgba(37,99,235,0.07)',
+      fill: true, tension: 0.4,
+      pointBackgroundColor: '#2563EB',
+      pointRadius: 3, pointHoverRadius: 5, borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.raw + '%' } } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+      y: {
+        grid: { color: '#F3F4F6' },
+        min: 0, max: 100,
+        ticks: { callback: v => v + '%', stepSize: 20, font: { size: 11 } }
+      }
+    }
+  }
+});
+
+function setRetentionType(btn, type) {
+  document.querySelectorAll('.retention-toggle').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // 데이터 전환 로직 확장 가능
 }
 </script>
 </body>
